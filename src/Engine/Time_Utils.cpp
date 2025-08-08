@@ -1,6 +1,8 @@
 #include "Time_Utils.h"
 
 float Time::deltaTime;
+float Time::timeElapsed;
+
 std::string Time::GetLocalTime()
 {
 	time_t currentTime = time(NULL);

@@ -7,5 +7,7 @@ class Time
 {
 public:
 	static std::string GetLocalTime();
+	
 	static float deltaTime;
+	static float timeElapsed;
 };

@@ -38,14 +38,11 @@ public:
         (*classInstance.*pFunction)(parameters...);
     }
 
-    void* GetClassAddress()
+    //Should be called before freeing Delegate
+    void Destroy()
     {
-        return classInstance;
-    }
-
-    void* GetFuncAddress()
-    {
-        return pFunction;
+        delete classInstance;
+        delete pFunction;
     }
 
 private:
@@ -62,11 +59,11 @@ public:
     {
         for(int i = 0; i < delegates.size(); i++)
         {
-            delete delegates[i].GetClassAddress();
-            delete delegates[i].GetFuncAddress();
+            delete delegates[i].Destroy();
             delete delegates[i];
             delete pFuncs[i];
         }
+        classesPtr.clear();
     }
 
     //Add function pointer to Invoke list
@@ -74,7 +71,6 @@ public:
     template<typename classType>
     void AddEvent(classType* classInstance, returnType(classType::*pFunction)(args...))
     {
-        //!!FIXME: might be a memory leak on del
         auto del = new Delegate<classType, returnType, args...>(classInstance, pFunction);
         auto baseDel = new Delegate<DelegateBase<returnType, args...>, returnType, args...>(del, &DelegateBase<returnType, args...>::Invoke);
 
