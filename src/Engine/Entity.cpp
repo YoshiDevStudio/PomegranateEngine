@@ -3,11 +3,14 @@
 Entity::Entity()
 {
     Initialize();
+    Start();
+    SetName("Entity");
 }
 
 Entity::Entity(std::string name)
 {
     Initialize();
+    Start();
     SetName(name);
 }
 
@@ -18,17 +21,26 @@ Entity::~Entity()
     {
         delete children[i];
     }
+    //Destroy all components
+    for(int i = 0; i < components.size(); i++)
+    {
+        delete components[i];
+    }
 }
 
 //!!TODO: Create Transform component and Initialize it here
 void Entity::Initialize()
 {
-    Start();
-
+    transform = new Transform2D();
+    AddComponent(transform);
     //Init any components already attached
     for(int i = 0; i < components.size(); i++)
     {
         components[i]->Initialize();
+    }
+    for(int i = 0; i < children.size(); i++)
+    {
+        children[i]->Initialize();
     }
 }
 
@@ -38,6 +50,10 @@ void Entity::Start()
     {
         components[i]->Start();
     }
+    for(int i = 0; i < children.size(); i++)
+    {
+        children[i]->Start();
+    }
 }
 
 void Entity::Update()
@@ -45,6 +61,10 @@ void Entity::Update()
     for(int i = 0; i < components.size(); i++)
     {
         components[i]->Update();
+    }
+    for(int i = 0; i < children.size(); i++)
+    {
+        children[i]->Update();
     }
 }
 
@@ -59,7 +79,6 @@ bool Entity::AddChild(Entity* child)
         if(child->GetName() == children[i]->GetName())
             return false;
     }
-    child->childIndex = children.size();
     children.push_back(child);
     child->SetParent(this);
     return true;
@@ -75,7 +94,6 @@ bool Entity::RemoveChild(Entity* child)
     {
         if(child->GetName() == children[i]->GetName())
         {
-            child->childIndex = -1;
             children.erase(children.begin() + i);
             child->SetParent(nullptr);
             return true;
@@ -161,26 +179,19 @@ Entity* Entity::GetChildByIndex(int index)
     return children[index];
 }
 
-int Entity::GetChildIndex()
-{
-    return this->childIndex;
-}
-
+//Get the entity at the highest level of the entity tree
 Entity* Entity::GetRootEntity()
 {
-    if(rootEntity != nullptr)
-        return rootEntity;
-
     //go up Entity Tree
     Entity* entity = this;
     while(entity->parent != nullptr)
     {
         entity = entity->parent;
     }
-    rootEntity = entity;
     return entity;
 }
 
+//Get path from root entity to this entity
 std::string Entity::GetPath()
 {
     std::string path(name);
@@ -200,6 +211,12 @@ void Entity::SetParent(Entity* parent)
     this->parent = parent;
 }
 
+Entity* Entity::GetParent()
+{
+    return this->parent;
+}
+
+//Set entities name
 void Entity::SetName(std::string name)
 {
     if(parent == nullptr)
@@ -223,22 +240,15 @@ void Entity::SetName(std::string name)
     }
 }
 
+//Get entities name
 std::string Entity::GetName()
 {
     return this->name;
 }
 
+//Add component to Entity
 void Entity::AddComponent(Component* component)
 {
-    //check for matching component
-    for(int i = 0; i < components.size(); i++)
-    {
-        if(component == components[i])
-        {
-            LOG_ERROR("Component already exists on Entity: " + this->GetName());
-            return;
-        }
-    }
     if(component->entity != nullptr)
     {
         component->entity->RemoveComponent(component);
@@ -247,6 +257,7 @@ void Entity::AddComponent(Component* component)
     components.push_back(component);
 }
 
+//Remove component to Entity
 void Entity::RemoveComponent(Component* component)
 {
     for(int i = 0; i < components.size(); i++)

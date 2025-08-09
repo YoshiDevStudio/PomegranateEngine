@@ -32,8 +32,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     //Load Level
     //!!TODO: Load from File
     level = new Entity("Level");
-    Component* component = new Component();
-    level->AddComponent(component);
 
     //std::cout << Time::GetLocalTimeMS() << std::endl;
 
