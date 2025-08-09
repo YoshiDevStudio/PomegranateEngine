@@ -1,13 +1,17 @@
 #include "Window.h"
 
 
-Window::Window(int width, int height, SDL_Window* window, SDL_Renderer* renderer)
+SDL_Window* Window::sdlWindow;
+SDL_Renderer* Window::renderer;
+
+Window::Window(int width, int height, SDL_WindowFlags windowFlags)
 {
     LOG_VERBOSE("Starting Engine");
 
-    this->sdlWindow = window;
-    this->renderer = renderer;
+    this->sdlWindow = nullptr;
+    this->renderer = nullptr;
     this->windowRect = glm::ivec2(width, height);
+    this->windowFlags = windowFlags;
 
     Input::Initialize();
 }

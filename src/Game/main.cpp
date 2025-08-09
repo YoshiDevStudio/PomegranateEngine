@@ -5,17 +5,13 @@
 
 #include <Engine.h>
 
-static SDL_Window* sdlWindow = NULL;
-static SDL_Renderer* renderer = NULL;
-static Window* window = NULL;
-
+static Window* window = nullptr;
 Entity* level = nullptr;
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
-    window = new Window(640, 480, sdlWindow, renderer);
-    window->SetWindowFlags(SDL_WINDOW_RESIZABLE);
+    window = new Window(640, 480, SDL_WINDOW_RESIZABLE);
 
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
@@ -23,11 +19,13 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         return SDL_APP_FAILURE;
     }
     glm::ivec2 windowRect = window->GetWindowRect();
-    if (!SDL_CreateWindowAndRenderer("SDL Game", windowRect.x, windowRect.y, window->GetWindowFlags(), &sdlWindow, &renderer))
+    if (!SDL_CreateWindowAndRenderer("SDL Game", windowRect.x, windowRect.y, window->GetWindowFlags(), &window->sdlWindow, &window->renderer))
     {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
+
+    //File::LoadPNGInFolder("textures");
 
     //Load Level
     //!!TODO: Load from File
@@ -76,14 +74,14 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     const float red = (float) (0.5 + 0.5 * SDL_sin(now));
     const float green = (float) (0.5 + 0.5 * SDL_sin(now + SDL_PI_D * 2 / 3));
     const float blue = (float) (0.5 + 0.5 * SDL_sin(now + SDL_PI_D * 4 / 3));
-    SDL_SetRenderDrawColorFloat(renderer, red, green, blue, SDL_ALPHA_OPAQUE_FLOAT);  /* new color, full alpha. */
+    SDL_SetRenderDrawColorFloat(window->renderer, red, green, blue, SDL_ALPHA_OPAQUE_FLOAT);  /* new color, full alpha. */
 
-    SDL_RenderClear(renderer);
+    SDL_RenderClear(window->renderer);
 
-    SDL_SetRenderDrawColorFloat(renderer, 1.0, 1.0, 1.0, 1.0);
-    SDL_RenderDebugText(renderer, 640 / 2, 480 / 2, std::to_string(Time::deltaTime).append("ms").c_str());
+    SDL_SetRenderDrawColorFloat(window->renderer, 1.0, 1.0, 1.0, 1.0);
+    SDL_RenderDebugText(window->renderer, 640 / 2, 480 / 2, std::to_string(Time::deltaTime).append("ms").c_str());
 
-    SDL_RenderPresent(renderer);
+    SDL_RenderPresent(window->renderer);
 
     return SDL_APP_CONTINUE;
 }

@@ -8,7 +8,7 @@
 class Window
 {
 public:
-    Window(int width, int height, SDL_Window* window, SDL_Renderer* renderer);
+    Window(int width, int height, SDL_WindowFlags windowFlags = 0);
     ~Window();
 
     //!!TODO: Implement Mouse Events
@@ -22,9 +22,10 @@ public:
     void SetWindowRect(int width, int height);
     glm::ivec2 GetWindowRect();
 
+    static SDL_Window* sdlWindow;
+    static SDL_Renderer* renderer;
 private:
-    SDL_Window* sdlWindow = NULL;
-    SDL_Renderer* renderer = NULL;
+    
 
     SDL_WindowFlags windowFlags = 0;
     glm::ivec2 windowRect = glm::ivec2(0, 0);
