@@ -21,11 +21,12 @@ Window::~Window()
     Input::Uninitialize();
 }
 
-SDL_AppResult Window::OnEvent(SDL_Event* event)
+//returns if quit event has occurred
+bool Window::OnEvent(SDL_Event* event)
 {
     if ((event->type == SDL_EVENT_KEY_DOWN && event->key.key == SDLK_ESCAPE) || event->type == SDL_EVENT_QUIT) 
     {
-        return SDL_APP_SUCCESS;  /* end the program, reporting success to the OS. */
+        return true;  //end the program
     }
     Input::KeyEvent keyEvent;
     glm::ivec2 newWindowRect = this->windowRect;
@@ -50,7 +51,7 @@ SDL_AppResult Window::OnEvent(SDL_Event* event)
         Input::OnKeyEvent(keyEvent);
         break;
     }
-    return SDL_APP_CONTINUE;
+    return false;
 }
 
 void Window::FrameUpdate()

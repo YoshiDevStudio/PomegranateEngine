@@ -3,7 +3,7 @@
 #include <SDL3/SDL.h>
 #include <glm/vec2.hpp>
 
-#include "Engine.h"
+#include "Core.h"
 
 class Window
 {
@@ -12,7 +12,7 @@ public:
     ~Window();
 
     //!!TODO: Implement Mouse Events
-    SDL_AppResult OnEvent(SDL_Event* event);
+    bool OnEvent(SDL_Event* event);
     void FrameUpdate();
 
     void SetWindowFlags(SDL_WindowFlags windowFlags);
