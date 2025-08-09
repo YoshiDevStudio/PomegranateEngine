@@ -4,4 +4,5 @@
 
 #include "Application.h"
 #include "EntryPoint.h"
+#include "ComponentList.h"
 

@@ -2,19 +2,27 @@
 
 std::map<std::string, Texture2D*> File::loadedTextures;
 
-
+//Loads all PNGs in path and stores them in File::loadedTextures
 void File::LoadPNGInFolder(std::string path)
 {
-    for(const auto& entry : std::filesystem::directory_iterator(std::filesystem::current_path().string() + "\\" + path))
+    try
     {
-        std::string outFileName = entry.path().string();
-        if(outFileName.ends_with(".png"))
+        for(const auto& entry : std::filesystem::directory_iterator(std::filesystem::current_path().string() + "\\" + path))
         {
-            LoadPNG(outFileName);
+            std::string outFileName = entry.path().string();
+            if(outFileName.ends_with(".png"))
+            {
+                LoadPNG(outFileName);
+            }
         }
+    }
+    catch(std::exception e)
+    {
+        LOG_ERROR(e.what());
     }
 }
 
+//Loads PNG in path and stores it in File::loadedTextures
 void File::LoadPNG(std::string path)
 {
     SDL_IOStream* fs = SDL_IOFromFile(path.c_str(), "r");
@@ -45,7 +53,9 @@ void File::LoadPNG(std::string path)
 
     SDL_DestroySurface(surface);
 
+    //remove directory path, only filename
     path = path.substr(path.find_last_of("\\") + 1);
-
+    //remove file extension
+    path.erase(path.end() - 4, path.end());
     loadedTextures.emplace(path, tex2D);
 }

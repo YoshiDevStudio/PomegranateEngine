@@ -2,7 +2,9 @@
 
 #include <SDL3/SDL.h>
 
-class Texture2D
+#include "DLL_Build.h"
+
+class DLL_API Texture2D
 {
 public:
     Texture2D(int width, int height)

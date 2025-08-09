@@ -31,5 +31,5 @@ void Transform2D::ApplyTransformations()
 
     globalPosition = localPosition + parentPos;
     globalRotationDegrees = localRotationDegrees + parentRotationDegrees;
-    globalScale = localScale + parentScale;
+    globalScale = localScale * parentScale;
 }

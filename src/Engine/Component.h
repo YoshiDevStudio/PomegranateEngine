@@ -5,7 +5,7 @@
 //Declare that entity exists since its a cyclical dependency
 class Entity;
 
-class Component
+class DLL_API Component
 {
 public:
     Component()

@@ -7,9 +7,10 @@
 #include <string>
 
 #include "Time_Utils.h"
+#include "DLL_Build.h"
 
 //Can print primitive types, strings, and memory addresses
-class Log
+class DLL_API Log
 {
 public:
     enum MessageType

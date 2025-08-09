@@ -14,6 +14,14 @@ Entity::Entity(std::string name)
     SetName(name);
 }
 
+Entity::Entity(std::string name, Component* component)
+{
+    Initialize();
+    AddComponent(component);
+    Start();
+    SetName(name);
+}
+
 Entity::~Entity()
 {
     //Destroy all children

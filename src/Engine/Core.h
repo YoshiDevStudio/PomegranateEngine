@@ -1,11 +1,5 @@
 #pragma once
 
-#ifdef BUILD_DLL
-    #define DLL_API __declspec(dllexport)
-#else
-    #define DLL_API __declspec(dllimport)
-#endif
-
 #ifdef _DEBUG
     #define LOG_ERROR(x) Log::LogMessage(x, Log::MessageType::Error);
     #define LOG_WARNING(x) Log::LogMessage(x, Log::MessageType::Warning);
@@ -18,10 +12,11 @@
     #define LOG_VERBOSE(x)
 #endif
 
+#include "DLL_Build.h"
+
 #include <SDL3/SDL.h>
 #include "Log.h"
 #include "Event.h"
-#include "Input.h"
-#include "Window.h"
 #include "Entity.h"
+#include "Window.h"
 #include "File.h"

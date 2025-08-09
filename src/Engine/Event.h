@@ -4,6 +4,8 @@
 #include <iostream>
 #include <stdio.h>
 
+#include "DLL_Build.h"
+
 template <typename returnType, typename... args>
 class DelegateBase
 {
@@ -11,7 +13,7 @@ public:
 	virtual returnType Invoke(args... parameters) = 0;
 };
 
-template<typename classType, typename returnType, typename... args> class Delegate : public DelegateBase<returnType, args...>
+template<typename classType, typename returnType, typename... args> class DLL_API Delegate : public DelegateBase<returnType, args...>
 {
 public:
 

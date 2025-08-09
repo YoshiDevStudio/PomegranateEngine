@@ -5,7 +5,7 @@
 #include "Core.h"
 
 //!!TODO: Implement Mouse Events, Keymods, Gamepads
-class Input
+class DLL_API Input
 {
 public:
     enum KeyEventType

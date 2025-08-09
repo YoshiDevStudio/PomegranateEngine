@@ -2,6 +2,7 @@
 
 #include "Component.h"
 #include <glm/vec2.hpp>
+#include <cmath>
 
 class Transform2D : public Component
 {

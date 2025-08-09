@@ -8,11 +8,13 @@
 class Component;
 class Transform2D;
 
-class Entity
+class DLL_API Entity
 {
 public:
     Entity();
     Entity(std::string name);
+    Entity(std::string name, Component* component);
+    
     ~Entity();
 
     virtual void Initialize();

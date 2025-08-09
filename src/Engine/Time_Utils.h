@@ -4,7 +4,9 @@
 #include <chrono>
 #include <string>
 
-class Time
+#include "DLL_Build.h"
+
+class DLL_API Time
 {
 public:
 	static std::string GetLocalTime();

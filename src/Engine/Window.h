@@ -4,8 +4,9 @@
 #include <glm/vec2.hpp>
 
 #include "Core.h"
+#include "Input.h"
 
-class Window
+class DLL_API Window
 {
 public:
     Window(int width, int height, SDL_WindowFlags windowFlags = 0);
