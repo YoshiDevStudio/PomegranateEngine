@@ -1,26 +1,18 @@
 #include "Window.h"
 
 
-Window::Window(SDL_Window* window, SDL_Renderer* renderer)
-{
-    this->Initialize(window, renderer);
-}
-
-Window::~Window()
-{
-    this->Uninitialize();
-}
-
-void Window::Initialize(SDL_Window* window, SDL_Renderer* renderer)
+Window::Window(int width, int height, SDL_Window* window, SDL_Renderer* renderer)
 {
     LOG_VERBOSE("Starting Engine");
 
     this->sdlWindow = window;
     this->renderer = renderer;
+    this->windowRect = glm::ivec2(width, height);
+
     Input::Initialize();
 }
 
-void Window::Uninitialize()
+Window::~Window()
 {
     Input::Uninitialize();
 }
@@ -32,8 +24,13 @@ SDL_AppResult Window::OnEvent(SDL_Event* event)
         return SDL_APP_SUCCESS;  /* end the program, reporting success to the OS. */
     }
     Input::KeyEvent keyEvent;
+    glm::ivec2 newWindowRect = this->windowRect;
     switch (event->type)
     {
+    case SDL_EVENT_WINDOW_RESIZED:
+        newWindowRect = glm::ivec2(event->window.data1, event->window.data2);
+        this->SetWindowRect(newWindowRect);
+        break;
     case SDL_EVENT_MOUSE_MOTION:
         break;
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
@@ -57,4 +54,29 @@ void Window::FrameUpdate()
     Time::timeElapsed = SDL_GetTicks();
     Time::deltaTime = Time::timeElapsed - prevTime;
     prevTime = Time::timeElapsed;
+}
+
+void Window::SetWindowFlags(SDL_WindowFlags windowFlags)
+{
+    this->windowFlags = windowFlags;
+}
+
+SDL_WindowFlags Window::GetWindowFlags()
+{
+    return this->windowFlags;
+}
+
+void Window::SetWindowRect(glm::ivec2 rect)
+{
+    this->windowRect = rect;
+}
+
+void Window::SetWindowRect(int width, int height)
+{
+    this->windowRect = glm::ivec2(width, height);
+}
+
+glm::ivec2 Window::GetWindowRect()
+{
+    return this->windowRect;
 }

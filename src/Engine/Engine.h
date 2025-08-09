@@ -5,9 +5,8 @@
 #define LOG(x) Log::LogMessage(x, Log::MessageType::Info);
 #define LOG_VERBOSE(x) Log::LogMessage(x, Log::MessageType::Verbose);
 
-#include <SDL3/SDL.h>
-
 #include "Log.h"
 #include "Event.h"
 #include "Input.h"
 #include "Window.h"
+#include "Entity.h"
