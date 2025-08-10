@@ -40,10 +40,10 @@ void SpriteRenderer::Draw()
     dstRect.w = ((float)tex2D->width) * entity->transform->globalScale.x;
     dstRect.h = ((float)tex2D->height) * entity->transform->globalScale.y;
 
-    srcRect.x = dstRect.x;
-    srcRect.y = dstRect.y;
-    srcRect.w = clipRect.x * entity->transform->globalScale.x;
-    srcRect.h = clipRect.y * entity->transform->globalScale.y;
+    srcRect.x = clipRect.x;
+    srcRect.y = clipRect.y;
+    srcRect.w = clipRect.w;
+    srcRect.h = clipRect.h;
 
     center.x = dstRect.w / 2.0;
     center.y = dstRect.h / 2.0;
@@ -59,10 +59,7 @@ void SpriteRenderer::SetTexture(Texture2D* tex2D)
         return;
     }
     this->tex2D = tex2D;
-    if(clipRect == glm::vec2(0, 0))
-    {
-        clipRect = glm::vec2(tex2D->width, tex2D->height);
-    }
+    ResetClipRect();
 }
 
 void SpriteRenderer::SetTexture(std::string texName)
@@ -73,4 +70,15 @@ void SpriteRenderer::SetTexture(std::string texName)
 Texture2D* SpriteRenderer::GetTexture()
 {
     return this->tex2D;
+}
+
+void SpriteRenderer::ResetClipRect()
+{
+    SDL_FRect rect;
+    rect.x = 0;
+    rect.y = 0;
+    rect.w = GetTexture()->width;
+    rect.h = GetTexture()->height;
+
+    clipRect = rect;
 }

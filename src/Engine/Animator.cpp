@@ -29,19 +29,21 @@ void Animator::PlayAnimation(Animation* animation)
         return;
     }
     currentAnimation = animation;
+    startOffset = SDL_GetTicks() / 1000.0f * animationSpeed;
     isPlaying = true;
 }
 
-void Animator::Pause()
+void Animator::SetPause(bool shouldPause)
 {
-    isPlaying = false;
+    isPlaying = !shouldPause;
 }
 
 void Animator::StopAnimation()
 {
-    Animation defaultAnim;
-    defaultAnim.AddFrame(&defaultState);
-    currentAnimation = &defaultAnim;
+    isPlaying = false;
+    currentAnimation = nullptr;
+    sprite->clipRect = defaultState.clipRect;
+    sprite->SetTexture(defaultState.tex2D);
 }
 
 //returns if SpriteRenderer was found
@@ -61,15 +63,14 @@ void Animator::UpdateFrame()
 {
     if(currentAnimation == nullptr || !isPlaying || sprite == nullptr)
         return;
-    //LOG("before");
     
-    //LOG("after")
-    currentAnimationTimer = (SDL_GetTicks() / 1000.0f) * animationSpeed;
-    int index = currentAnimationTimer % currentAnimation->frames.size();
+    Uint64 timer = ((SDL_GetTicks() / 1000.0f) * animationSpeed) - startOffset;
+    int index = timer % currentAnimation->frames.size();
     AnimationFrame frame = currentAnimation->frames[index];
+
     sprite->clipRect = frame.clipRect;
     if(frame.tex2D == nullptr)
         return;
-        
+
     sprite->SetTexture(frame.tex2D);
 }

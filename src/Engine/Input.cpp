@@ -1,6 +1,7 @@
 #include "Input.h"
 
 bool Input::keys[322];
+bool Input::prevKeys[322];
 Event<void, Input::KeyEvent>* Input::keyEvent;
 
 //Constructor
@@ -30,6 +31,7 @@ void Input::OnKeyEvent(KeyEvent e)
     {
         return;
     }
+    prevKeys[e.key] = keys[e.key];
     switch(e.type)
     {
         case KeyEventType::KeyDown:
@@ -44,26 +46,36 @@ void Input::OnKeyEvent(KeyEvent e)
 
 bool Input::IsKeyPressed(int key)
 {
-    try
-    {
-        return keys[key] == true;
-    }
-    catch(std::exception e) 
-    {
-        LOG_ERROR(e.what());
+    if(key < 0 || key >= 322)
         return false;
-    }
+    return keys[key] == true;
 }
 
 bool Input::IsKeyReleased(int key)
 {
-    try
-    {
-        return keys[key] == false;
-    }
-    catch(std::exception e) 
-    {
-        LOG_ERROR(e.what());
+    if(key < 0 || key >= 322)
         return false;
-    }
+    return keys[key] == false;
+}
+
+bool Input::IsKeyJustPressed(int key)
+{
+    if(key < 0 || key >= 322)
+        return false;
+    bool keyState = prevKeys[key] == false && keys[key] == true;
+
+    prevKeys[key] = keys[key];
+
+    return keyState;
+}
+
+bool Input::IsKeyJustReleased(int key)
+{
+    if(key < 0 || key >= 322)
+        return false;
+    bool keyState = prevKeys[key] == true && keys[key] == false;
+
+    prevKeys[key] = keys[key];
+
+    return keyState;
 }

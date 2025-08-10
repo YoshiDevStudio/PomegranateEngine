@@ -8,7 +8,7 @@ struct DLL_API AnimationFrame
 {
 public:
     Texture2D* tex2D;
-    glm::vec2 clipRect;
+    SDL_FRect clipRect;
 
     AnimationFrame()
     {
@@ -18,10 +18,17 @@ public:
     AnimationFrame(Texture2D* tex2D, Event<void>* event = nullptr)
     {
         this->tex2D = tex2D;
-        this->clipRect = glm::vec2(tex2D->width, tex2D->height);
+        SDL_FRect rect;
+
+        rect.x = 0;
+        rect.y = 0;
+        rect.w = tex2D->width;
+        rect.h = tex2D->height;
+
+        this->clipRect = rect;
     }
 
-    AnimationFrame(glm::vec2 clipRect, Event<void>* event = nullptr)
+    AnimationFrame(SDL_FRect clipRect, Event<void>* event = nullptr)
     {
         this->tex2D = nullptr;
         this->clipRect = clipRect;
@@ -37,9 +44,9 @@ public:
     }
     ~Animation() = default;
 
-    void AddFrame(glm::vec2 clipRectFrame)
+    void AddFrame(SDL_FRect clipRect)
     {
-        AnimationFrame frame(clipRectFrame);
+        AnimationFrame frame(clipRect);
         frames.push_back(frame);
     }
 
@@ -72,7 +79,7 @@ public:
     virtual void Update() override;
 
     void PlayAnimation(Animation* animation);
-    void Pause();
+    void SetPause(bool shouldPause);
     void StopAnimation();
 
     SpriteRenderer* sprite = nullptr;
@@ -86,5 +93,5 @@ private:
     Animation* currentAnimation = nullptr;
     AnimationFrame defaultState;
 
-    Uint64 currentAnimationTimer;
+    Uint64 startOffset;
 };

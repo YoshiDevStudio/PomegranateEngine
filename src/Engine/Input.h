@@ -33,9 +33,12 @@ public:
     static void OnKeyEvent(KeyEvent e);
     static bool IsKeyPressed(int key);
     static bool IsKeyReleased(int key);
+    static bool IsKeyJustPressed(int key);
+    static bool IsKeyJustReleased(int key);
 
     static Event<void, KeyEvent>* keyEvent;
 
 private:
     static bool keys[322];
+    static bool prevKeys[322];
 };
