@@ -10,10 +10,12 @@ template <typename returnType, typename... args>
 class DelegateBase
 {
 public:
+    DelegateBase() = default;
+    ~DelegateBase() = default;
 	virtual returnType Invoke(args... parameters) = 0;
 };
 
-template<typename classType, typename returnType, typename... args> class DLL_API Delegate : public DelegateBase<returnType, args...>
+template<typename classType, typename returnType, typename... args> class Delegate : public DelegateBase<returnType, args...>
 {
 public:
 
@@ -53,7 +55,7 @@ private:
 };
 
 //Can hold multiple functions if their return type and arguments match
-template <typename returnType, typename... args> class Event
+template <typename returnType, typename... args> class DLL_API Event
 {
 public:
     Event() = default;
@@ -61,7 +63,7 @@ public:
     {
         for(int i = 0; i < delegates.size(); i++)
         {
-            delete delegates[i].Destroy();
+            delegates[i].Destroy();
             delete delegates[i];
             delete pFuncs[i];
         }

@@ -57,7 +57,7 @@ bool Window::OnEvent(SDL_Event* event)
 void Window::FrameUpdate()
 {
     Time::timeElapsed = SDL_GetTicks();
-    Time::deltaTime = Time::timeElapsed - prevTime;
+    Time::deltaTime = (Time::timeElapsed - prevTime) / 1000.0f;
     prevTime = Time::timeElapsed;
 }
 

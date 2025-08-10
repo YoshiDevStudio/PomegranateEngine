@@ -31,26 +31,38 @@ void SpriteRenderer::Draw()
     if(entity == nullptr || tex2D == nullptr)
         return;
 
-    SDL_FPoint center;
     SDL_FRect dstRect;
-    glm::ivec2 windowRect = window->GetWindowRect();
+    SDL_FRect srcRect;
+    SDL_FPoint center;
 
-    dstRect.x = (((float)(windowRect.x - tex2D->width)) / 2.0f) + entity->transform->globalPosition.x;
-    dstRect.y = (((float)(windowRect.y - tex2D->height)) / 2.0f) + entity->transform->globalPosition.y;
+    dstRect.x = entity->transform->globalPosition.x;
+    dstRect.y = entity->transform->globalPosition.y;
     dstRect.w = ((float)tex2D->width) * entity->transform->globalScale.x;
     dstRect.h = ((float)tex2D->height) * entity->transform->globalScale.y;
+
+    srcRect.x = dstRect.x;
+    srcRect.y = dstRect.y;
+    srcRect.w = clipRect.x * entity->transform->globalScale.x;
+    srcRect.h = clipRect.y * entity->transform->globalScale.y;
 
     center.x = dstRect.w / 2.0;
     center.y = dstRect.h / 2.0;
 
-    SDL_RenderTextureRotated(window->renderer, tex2D->texture, NULL, &dstRect, entity->transform->globalRotationDegrees, &center, SDL_FLIP_NONE);
+    SDL_RenderTextureRotated(window->renderer, tex2D->texture, &srcRect, &dstRect, entity->transform->globalRotationDegrees, &center, SDL_FLIP_NONE);
 }
 
 void SpriteRenderer::SetTexture(Texture2D* tex2D)
 {
     if(tex2D == nullptr)
-        LOG_WARNING("Texture assigned was null");
+    {
+        LOG_ERROR("Texture assigned was null");
+        return;
+    }
     this->tex2D = tex2D;
+    if(clipRect == glm::vec2(0, 0))
+    {
+        clipRect = glm::vec2(tex2D->width, tex2D->height);
+    }
 }
 
 void SpriteRenderer::SetTexture(std::string texName)

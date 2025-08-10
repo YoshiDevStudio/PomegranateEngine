@@ -25,6 +25,9 @@ public:
     void SetTexture(std::string texName);
     Texture2D* GetTexture();
 
+    //will clip texture outside of clipRect bounds
+    //clipRect is set to full texture size by default
+    glm::vec2 clipRect;
 private:
     void Draw();
 

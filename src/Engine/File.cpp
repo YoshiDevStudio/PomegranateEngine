@@ -58,4 +58,13 @@ void File::LoadPNG(std::string path)
     //remove file extension
     path.erase(path.end() - 4, path.end());
     loadedTextures.emplace(path, tex2D);
+    LOG_VERBOSE("Loaded Texture: " + path);
+}
+
+void File::Uninitialize()
+{
+    for(const auto& pair : loadedTextures)
+    {
+        delete pair.second;
+    }
 }

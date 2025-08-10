@@ -44,9 +44,9 @@ public:
         for(int i = 0; i < components.size(); i++)
         {
             //If components[i] is of type T
-            if(typeid(T*).hash_code() == typeid(components[i]).hash_code())
+            if(dynamic_cast<T*>(components[i]) != nullptr)
             {
-                return components[i];
+                return (T*)components[i];
             }
         }
         return nullptr;
@@ -61,9 +61,9 @@ public:
         for(int i = 0; i < components.size(); i++)
         {
             //If components[i] is of type T
-            if(typeid(T*).hash_code() == typeid(components[i]).hash_code())
+            if(dynamic_cast<T*>(components[i]) != nullptr)
             {
-                c.push_back(components[i]);
+                c.push_back((T*)components[i]);
             }
         }
         return c;

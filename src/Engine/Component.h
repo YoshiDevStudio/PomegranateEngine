@@ -14,6 +14,15 @@ public:
     }
     virtual ~Component() = default;
 
+
+    virtual void OnAttach()
+    {
+
+    }
+    virtual void OnDeAttach()
+    {
+        
+    }
     virtual void Initialize()
     {
         Start();

@@ -85,6 +85,8 @@ void Application::Run()
     SDL_DestroyRenderer(window->renderer);
     SDL_DestroyWindow(window->sdlWindow);
 
+    File::Uninitialize();
+    
     delete Level;
     delete window;
 

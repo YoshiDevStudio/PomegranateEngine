@@ -263,6 +263,7 @@ void Entity::AddComponent(Component* component)
     }
     component->entity = this;
     components.push_back(component);
+    component->OnAttach();
 }
 
 //Remove component to Entity
@@ -274,6 +275,7 @@ void Entity::RemoveComponent(Component* component)
         {
             component->entity = nullptr;
             components.erase(components.begin() + i);
+            component->OnDeAttach();
         }
     }
 }
