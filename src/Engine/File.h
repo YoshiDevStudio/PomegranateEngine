@@ -9,12 +9,15 @@
 
 #include "Core.h"
 #include "Texture2D.h"
+#include "Animation.h"
 
 class DLL_API File
 {
 public:
-    static void LoadPNGInFolder(std::string path);
-    static void LoadPNG(std::string path);
+    static void LoadPNGInFolder(std::string folderPath);
+    static Texture2D* LoadPNG(std::string filePath);
+
+    static Animation* LoadAnimation(std::string folderPath);
 
     static void Uninitialize();
 

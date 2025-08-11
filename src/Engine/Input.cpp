@@ -4,13 +4,14 @@ Event<void, SDL_Event*>* Input::OnMouseWheelEvent;
 //Constructor
 void Input::Initialize()
 {
+    //For some reason the compiler screams at me when I try to delete this or when its not a pointer so it shall stay as is
     OnMouseWheelEvent = new Event<void, SDL_Event*>();
 }
 
 //Deconstructor
 void Input::Uninitialize()
 {
-    delete OnMouseWheelEvent;
+    
 }
 
 void Input::OnEvent(SDL_Event* e)
@@ -19,24 +20,6 @@ void Input::OnEvent(SDL_Event* e)
     {
         OnMouseWheelEvent->Invoke(e);
     }
-    /*if(e->key.key == -1)
-        return;
-    
-    //if key is mod
-    if(e->key.key > 0x80)
-    {
-        return;
-    }
-    prevKeys[e->key.scancode] = keys[e->key.scancode];
-    switch(e->key.type)
-    {
-        case SDL_EVENT_KEY_DOWN:
-            keys[e->key.scancode] = true;
-            break;
-        case SDL_EVENT_KEY_UP:
-            keys[e->key.scancode] = false;
-            break;
-    }*/
 }
 
 bool Input::IsKeyPressed(int key)

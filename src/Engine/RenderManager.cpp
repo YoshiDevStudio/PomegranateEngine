@@ -27,8 +27,12 @@ void RenderManager::Draw(SDL_Renderer* renderer)
     drawCalls.clear();
 }
 
+//Descending Bubblesort for QueuedDraws Z-indexes
 void RenderManager::DescendingSort()
 {
+    if(drawCalls.size() <= 0)
+        return;
+        
     QueuedDraw* temp;
     for(int i = 0; i < drawCalls.size() - 1; i++)
     {
