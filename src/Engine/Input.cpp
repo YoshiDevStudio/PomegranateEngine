@@ -1,81 +1,69 @@
 #include "Input.h"
 
-bool Input::keys[322];
-bool Input::prevKeys[322];
-Event<void, Input::KeyEvent>* Input::keyEvent;
-
+Event<void, SDL_Event*>* Input::OnMouseWheelEvent;
 //Constructor
 void Input::Initialize()
 {
-    keyEvent = new Event<void, KeyEvent>();
-    for(int i = 0; i < 322; i++)
-    {
-        keys[i] = false;
-    }
+    OnMouseWheelEvent = new Event<void, SDL_Event*>();
 }
 
 //Deconstructor
 void Input::Uninitialize()
 {
-
+    delete OnMouseWheelEvent;
 }
 
-//!!TODO:: Handle Mod Input
-void Input::OnKeyEvent(KeyEvent e)
+void Input::OnEvent(SDL_Event* e)
 {
-    if(e.key == -1)
+    if(e->type == SDL_EVENT_MOUSE_WHEEL)
+    {
+        OnMouseWheelEvent->Invoke(e);
+    }
+    /*if(e->key.key == -1)
         return;
     
     //if key is mod
-    if(e.key > 0x80)
+    if(e->key.key > 0x80)
     {
         return;
     }
-    prevKeys[e.key] = keys[e.key];
-    switch(e.type)
+    prevKeys[e->key.scancode] = keys[e->key.scancode];
+    switch(e->key.type)
     {
-        case KeyEventType::KeyDown:
-            keys[e.key] = true;
+        case SDL_EVENT_KEY_DOWN:
+            keys[e->key.scancode] = true;
             break;
-        case KeyEventType::KeyUp:
-            keys[e.key] = false;
+        case SDL_EVENT_KEY_UP:
+            keys[e->key.scancode] = false;
             break;
-    }
-    keyEvent->Invoke(e);
+    }*/
 }
 
 bool Input::IsKeyPressed(int key)
 {
-    if(key < 0 || key >= 322)
-        return false;
-    return keys[key] == true;
+    SDL_Scancode scancode = SDL_GetScancodeFromKey(key, NULL);
+    return SDL_GetKeyboardState(NULL)[scancode] == true;
 }
 
 bool Input::IsKeyReleased(int key)
 {
-    if(key < 0 || key >= 322)
-        return false;
-    return keys[key] == false;
+    SDL_Scancode scancode = SDL_GetScancodeFromKey(key, NULL);
+    return SDL_GetKeyboardState(NULL)[scancode] == false;
 }
 
-bool Input::IsKeyJustPressed(int key)
+glm::vec2 Input::GetMousePosition()
 {
-    if(key < 0 || key >= 322)
-        return false;
-    bool keyState = prevKeys[key] == false && keys[key] == true;
-
-    prevKeys[key] = keys[key];
-
-    return keyState;
+    float x, y;
+    SDL_GetMouseState(&x, &y);
+    return glm::vec2(x, y);
 }
 
-bool Input::IsKeyJustReleased(int key)
+bool Input::IsMouseButtonPressed(SDL_MouseButtonFlags button)
 {
-    if(key < 0 || key >= 322)
-        return false;
-    bool keyState = prevKeys[key] == true && keys[key] == false;
+    return SDL_GetMouseState(NULL, NULL) & SDL_BUTTON_MASK(button);
+}
 
-    prevKeys[key] = keys[key];
-
-    return keyState;
+bool Input::IsMouseButtonReleased(SDL_MouseButtonFlags button)
+{
+    return !(SDL_GetMouseState(NULL, NULL) & SDL_BUTTON_MASK(button));
 }

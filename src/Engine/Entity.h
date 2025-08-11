@@ -8,6 +8,7 @@
 class Component;
 class Transform2D;
 
+//Entity is freed by engine as long as its a child under Application::Level
 class DLL_API Entity
 {
 public:

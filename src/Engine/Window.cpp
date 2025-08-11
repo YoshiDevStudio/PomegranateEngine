@@ -4,12 +4,13 @@
 SDL_Window* Window::sdlWindow;
 SDL_Renderer* Window::renderer;
 
-Window::Window(int width, int height, SDL_WindowFlags windowFlags)
+Window::Window(std::string title, int width, int height, SDL_WindowFlags windowFlags)
 {
     LOG_VERBOSE("Starting Engine");
 
     this->sdlWindow = nullptr;
     this->renderer = nullptr;
+    this->title = title;
     this->windowRect = glm::ivec2(width, height);
     this->windowFlags = windowFlags;
 
@@ -22,13 +23,12 @@ Window::~Window()
 }
 
 //returns if quit event has occurred
-bool Window::OnEvent(SDL_Event* event)
+bool Window::HandleEvent(SDL_Event* event)
 {
     if ((event->type == SDL_EVENT_KEY_DOWN && event->key.key == SDLK_ESCAPE) || event->type == SDL_EVENT_QUIT) 
     {
         return true;  //end the program
     }
-    Input::KeyEvent keyEvent;
     glm::ivec2 newWindowRect = this->windowRect;
     switch (event->type)
     {
@@ -36,19 +36,8 @@ bool Window::OnEvent(SDL_Event* event)
         newWindowRect = glm::ivec2(event->window.data1, event->window.data2);
         this->SetWindowRect(newWindowRect);
         break;
-    case SDL_EVENT_MOUSE_MOTION:
-        break;
-    case SDL_EVENT_MOUSE_BUTTON_DOWN:
-        break;
-    case SDL_EVENT_MOUSE_BUTTON_UP:
-        break;
-    case SDL_EVENT_KEY_DOWN:
-        keyEvent = Input::KeyEvent(event->key.key, Input::KeyEventType::KeyDown, event->key.mod);
-        Input::OnKeyEvent(keyEvent);
-        break;
-    case SDL_EVENT_KEY_UP:
-        keyEvent = Input::KeyEvent(event->key.key, Input::KeyEventType::KeyUp, event->key.mod);
-        Input::OnKeyEvent(keyEvent);
+    default:
+        Input::OnEvent(event);
         break;
     }
     return false;
@@ -61,9 +50,15 @@ void Window::FrameUpdate()
     prevTime = Time::timeElapsed;
 }
 
-void Window::SetWindowFlags(SDL_WindowFlags windowFlags)
+void Window::SetTitle(std::string title)
 {
-    this->windowFlags = windowFlags;
+    if(SDL_SetWindowTitle(sdlWindow, title.c_str()))
+        this->title = title;
+}
+
+std::string Window::GetTitle()
+{
+    return this->title;
 }
 
 SDL_WindowFlags Window::GetWindowFlags()
@@ -84,4 +79,14 @@ void Window::SetWindowRect(int width, int height)
 glm::ivec2 Window::GetWindowRect()
 {
     return this->windowRect;
+}
+
+void Window::SetWindowResizable(bool isResizable)
+{
+    SDL_SetWindowResizable(sdlWindow, isResizable);
+}
+
+void Window::SetWindowFullscreen(bool isFullscreen)
+{
+    SDL_SetWindowFullscreen(sdlWindow, isFullscreen);
 }

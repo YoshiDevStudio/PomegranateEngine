@@ -1,23 +1,21 @@
 #include "SpriteRenderer.h"
 
-SpriteRenderer::SpriteRenderer(Window* window)
+SpriteRenderer::SpriteRenderer()
     : Component()
 {
-    this->window = window;
+
 }
 
-SpriteRenderer::SpriteRenderer(Window* window, Texture2D* tex2D)
+SpriteRenderer::SpriteRenderer(Texture2D* tex2D)
     : Component()
 {
     SetTexture(tex2D);
-    this->window = window;
 }
 
-SpriteRenderer::SpriteRenderer(Window* window, std::string texName)
+SpriteRenderer::SpriteRenderer(std::string texName)
     : Component()
 {
     SetTexture(texName);
-    this->window = window;
 }
 
 void SpriteRenderer::Update()
@@ -48,7 +46,8 @@ void SpriteRenderer::Draw()
     center.x = dstRect.w / 2.0;
     center.y = dstRect.h / 2.0;
 
-    SDL_RenderTextureRotated(window->renderer, tex2D->texture, &srcRect, &dstRect, entity->transform->globalRotationDegrees, &center, SDL_FLIP_NONE);
+    QueuedDraw* drawCall = new QueuedDraw(tex2D->texture, &srcRect, &dstRect, zIndex, entity->transform->globalRotationDegrees, &center, flipMode);
+    RenderManager::Queue(drawCall);
 }
 
 void SpriteRenderer::SetTexture(Texture2D* tex2D)

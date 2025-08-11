@@ -3,14 +3,12 @@
 Entity::Entity()
 {
     Initialize();
-    Start();
     SetName("Entity");
 }
 
 Entity::Entity(std::string name)
 {
     Initialize();
-    Start();
     SetName(name);
 }
 
@@ -18,7 +16,6 @@ Entity::Entity(std::string name, Component* component)
 {
     Initialize();
     AddComponent(component);
-    Start();
     SetName(name);
 }
 
@@ -36,7 +33,6 @@ Entity::~Entity()
     }
 }
 
-//!!TODO: Create Transform component and Initialize it here
 void Entity::Initialize()
 {
     transform = new Transform2D();
@@ -54,14 +50,7 @@ void Entity::Initialize()
 
 void Entity::Start()
 {
-    for(int i = 0; i < components.size(); i++)
-    {
-        components[i]->Start();
-    }
-    for(int i = 0; i < children.size(); i++)
-    {
-        children[i]->Start();
-    }
+    
 }
 
 void Entity::Update()
@@ -125,7 +114,7 @@ Entity* Entity::GetChild(std::string name)
                 return children[i];
         }
 
-        LOG_ERROR("Entity: " + name + " could not be found");
+        LOG_ERROR("Entity: " + this->GetName() + " could not be found");
         return nullptr;
     }
 
@@ -159,7 +148,7 @@ Entity* Entity::GetChild(std::string name)
     {
         if (slashIndex == 0)
         {
-            //Set lastChildEntity to the next child in the list without beginning slash
+            //Set lastChildEntity to the last child in the list without beginning slash
             std::string currentEntityName = name.substr(1);
             lastChildEntity = lastChildEntity->GetChild(currentEntityName);
             break;

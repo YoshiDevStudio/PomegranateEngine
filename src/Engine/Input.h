@@ -8,37 +8,16 @@
 class DLL_API Input
 {
 public:
-    enum KeyEventType
-    {
-        KeyUp,
-        KeyDown
-    };
-    struct KeyEvent
-    {
-        int key;
-        KeyEventType type;
-        SDL_Keymod mod;
-
-        //if key is -1, key is invalid
-        KeyEvent(int key = -1, KeyEventType type = KeyEventType::KeyDown, SDL_Keymod mod = SDL_KMOD_NONE)
-        {
-            this->key = key;
-            this->type = type;
-            this->mod = mod;
-        }
-    };
-public:
     static void Initialize();
     static void Uninitialize();
-    static void OnKeyEvent(KeyEvent e);
+    static void OnEvent(SDL_Event* e);
+    
     static bool IsKeyPressed(int key);
     static bool IsKeyReleased(int key);
-    static bool IsKeyJustPressed(int key);
-    static bool IsKeyJustReleased(int key);
 
-    static Event<void, KeyEvent>* keyEvent;
+    static glm::vec2 GetMousePosition();
+    static bool IsMouseButtonPressed(SDL_MouseButtonFlags button);
+    static bool IsMouseButtonReleased(SDL_MouseButtonFlags button);
 
-private:
-    static bool keys[322];
-    static bool prevKeys[322];
+    static Event<void, SDL_Event*>* OnMouseWheelEvent;
 };

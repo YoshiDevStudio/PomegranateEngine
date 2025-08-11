@@ -36,7 +36,7 @@ void Application::Update()
 
 void Application::Run()
 {
-    window = new Window(640, 480, SDL_WINDOW_RESIZABLE);
+    window = new Window("SDL Game", 640, 480, SDL_WINDOW_RESIZABLE);
 
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
@@ -44,7 +44,7 @@ void Application::Run()
         return;
     }
     glm::ivec2 windowRect = window->GetWindowRect();
-    if (!SDL_CreateWindowAndRenderer("SDL Game", windowRect.x, windowRect.y, window->GetWindowFlags(), &window->sdlWindow, &window->renderer))
+    if (!SDL_CreateWindowAndRenderer(window->GetTitle().c_str(), windowRect.x, windowRect.y, window->GetWindowFlags(), &window->sdlWindow, &window->renderer))
     {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         return;
@@ -60,7 +60,7 @@ void Application::Run()
         SDL_PollEvent(e);
 
         this->OnEvent(e);
-        shouldQuit = window->OnEvent(e);
+        shouldQuit = window->HandleEvent(e);
 
         const double now = ((double)SDL_GetTicks()) / 1000.0;  /* convert from milliseconds to seconds. */
         /* choose the color for the frame we will draw. The sine wave trick makes it fade between colors smoothly. */
@@ -74,6 +74,8 @@ void Application::Run()
         window->FrameUpdate();
         this->Update();
         Level->Update();
+
+        RenderManager::Draw(window->renderer);
 
         SDL_SetRenderDrawColorFloat(window->renderer, 1.0, 1.0, 1.0, 1.0);
         SDL_RenderDebugText(window->renderer, 640 / 2, 480 / 2, std::to_string(Time::deltaTime).append("ms").c_str());

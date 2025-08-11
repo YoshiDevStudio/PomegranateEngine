@@ -7,15 +7,16 @@
 #include "Texture2D.h"
 #include "File.h"
 #include "Window.h"
+#include "RenderManager.h"
 
 class Window;
 
 class DLL_API SpriteRenderer : public Component
 {
 public:
-    SpriteRenderer(Window* window);
-    SpriteRenderer(Window* window, Texture2D* tex2D);
-    SpriteRenderer(Window* window, std::string texName);
+    SpriteRenderer();
+    SpriteRenderer(Texture2D* tex2D);
+    SpriteRenderer(std::string texName);
 
     ~SpriteRenderer() = default;
 
@@ -30,9 +31,10 @@ public:
     //will clip texture outside of clipRect bounds
     //clipRect is set to full texture size by default
     SDL_FRect clipRect;
+    int zIndex = 0;
+    SDL_FlipMode flipMode = SDL_FLIP_NONE;
 private:
     void Draw();
 
     Texture2D* tex2D = nullptr;
-    Window* window;
 };
