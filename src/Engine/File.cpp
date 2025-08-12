@@ -1,10 +1,12 @@
 #include "File.h"
 
 std::map<std::string, Texture2D*> File::loadedTextures;
+std::map<std::string, std::vector<Tile>> File::loadedTiles;
 
 //Loads all PNGs in path and stores them in File::loadedTextures
-void File::LoadPNGInFolder(std::string folderPath)
+std::vector<Texture2D*> File::LoadPNGInFolder(std::string folderPath)
 {
+    std::vector<Texture2D*> textures;
     try
     {
         for(const auto& entry : std::filesystem::directory_iterator(std::filesystem::current_path().string() + "\\" + folderPath))
@@ -12,14 +14,16 @@ void File::LoadPNGInFolder(std::string folderPath)
             std::string outFileName = entry.path().string();
             if(outFileName.ends_with(".png"))
             {
-                LoadPNG(outFileName);
+                textures.push_back(LoadPNG(outFileName));
             }
         }
+        return textures;
     }
     catch(std::exception e)
     {
         LOG_ERROR(e.what());
     }
+    return textures;
 }
 
 //Loads PNG in path and stores it in File::loadedTextures
@@ -62,36 +66,87 @@ Texture2D* File::LoadPNG(std::string filePath)
     return tex2D;
 }
 
+//Loads PNG image and splits it up into Tiles of size: tileSize
+std::vector<Tile> File::LoadTilemap(std::string filePath, int tileSize)
+{
+    std::vector<Tile> tiles;
+    Texture2D* tilemap = LoadPNG(filePath);
+    for(int y = 0; y < tilemap->height; y += tileSize)
+    {
+        for(int x = 0; x < tilemap->width; x += tileSize)
+        {
+            Tile tile(glm::ivec2(x, y), tilemap, tileSize);
+            tiles.push_back(tile);
+        }
+    }
+    loadedTiles.emplace(GetFileName(filePath), tiles);
+    return tiles;
+}
+
+//Get Tile from tilemap at position given
+Tile File::GetTileAtPos(std::string tilemapName, glm::ivec2 position)
+{
+    std::vector<Tile> tiles = File::loadedTiles[tilemapName];
+    //Tilemap is split into chunks of size: tileSize, so divide height by tileSize to be within bounds of array
+    return tiles[position.y * (tiles[0].tex2D->height / tiles[0].tileSize) + position.x];
+}
+
 //Loads all images in folder and converts them into an animation
 //Images are loaded in alphabetical order
 //Images must be .png
 Animation* File::LoadAnimation(std::string folderPath)
 {
-    try
+    std::vector<Texture2D*> textures = LoadPNGInFolder(folderPath);
+    Animation* animation = new Animation();
+    for(int i = 0; i < textures.size(); i++)
     {
-        Animation* animation = new Animation();
-        for(const auto& entry : std::filesystem::directory_iterator(std::filesystem::current_path().string() + "\\" + folderPath))
+        animation->AddFrame(textures[i]);
+    }
+    return animation;
+}
+
+void UnloadTexture(std::string textureName)
+{
+    for(const auto& pair : File::loadedTextures)
+    {
+        if(textureName == pair.first)
         {
-            std::string outFileName = entry.path().string();
-            if(outFileName.ends_with(".png"))
-            {
-                Texture2D* tex = LoadPNG(outFileName);
-                animation->AddFrame(tex);
-            }
+            delete pair.second;
+            File::loadedTextures.erase(textureName);
         }
-        return animation;
     }
-    catch(std::exception e)
+}
+
+void UnloadTexture(Texture2D* texture)
+{
+    for(const auto& pair : File::loadedTextures)
     {
-        LOG_ERROR(e.what());
+        if(texture == pair.second)
+        {
+            delete pair.second;
+            File::loadedTextures.erase(pair.first);
+        }
     }
-    return nullptr;
 }
 
 void File::Uninitialize()
 {
-    for(const auto& pair : loadedTextures)
+    for(const auto& pair : File::loadedTextures)
     {
         delete pair.second;
     }
+}
+
+std::string File::GetFileName(std::string absolutePath)
+{
+    //remove directory path, only filename
+    int lastSlash = absolutePath.find_last_of("\\");
+    if(lastSlash != std::string::npos)
+        absolutePath = absolutePath.substr(absolutePath.find_last_of("\\") + 1);
+    //remove file extension
+    int lastDot = absolutePath.find_last_of(".");
+    if(lastDot != std::string::npos)
+        absolutePath.erase(absolutePath.begin() + absolutePath.find_last_of("."), absolutePath.end());
+
+    return absolutePath;
 }

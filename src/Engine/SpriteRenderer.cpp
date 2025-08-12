@@ -54,7 +54,7 @@ void SpriteRenderer::SetTexture(Texture2D* tex2D)
 {
     if(tex2D == nullptr)
     {
-        LOG_ERROR("Texture assigned was null");
+        LOG_ERROR("Texture assigned to SpriteRenderer was null");
         return;
     }
     this->tex2D = tex2D;
