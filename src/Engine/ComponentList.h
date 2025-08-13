@@ -4,3 +4,5 @@
 #include "SpriteRenderer.h"
 #include "Animator.h"
 #include "Tilemap.h"
+#include "BoxCollision.h"
+#include "CircleCollision.h"

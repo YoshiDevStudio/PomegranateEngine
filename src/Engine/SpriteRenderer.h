@@ -6,10 +6,7 @@
 #include "Transform2D.h"
 #include "Texture2D.h"
 #include "File.h"
-#include "Window.h"
 #include "RenderManager.h"
-
-class Window;
 
 class DLL_API SpriteRenderer : public Component
 {

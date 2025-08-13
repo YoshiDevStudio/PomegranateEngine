@@ -4,6 +4,7 @@
 #include <SDL3/SDL_image.h>
 #include <filesystem>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <map>
 
@@ -27,6 +28,8 @@ public:
     static void Uninitialize();
 
     static std::string GetFileName(std::string absolutePath);
+    static std::string RemoveFileDirectory(std::string path);
+    static std::string RemoveFileExtension(std::string path);
 
     //Here is where all loaded textures are stored, you can get them by inputting the filename without its extension
     static std::map<std::string, Texture2D*> loadedTextures;

@@ -1,4 +1,6 @@
 #include "Entity.h"
+#include "Component.h"
+#include "Transform2D.h"
 
 Entity::Entity()
 {

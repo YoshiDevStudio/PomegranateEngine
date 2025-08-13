@@ -1,10 +1,7 @@
 #pragma once
 
 #include "Core.h"
-#include "Component.h"
-#include "Transform2D.h"
 
-//Cyclically Dependent so these have to be declared to compile
 class Component;
 class Transform2D;
 

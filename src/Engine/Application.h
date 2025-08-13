@@ -3,8 +3,6 @@
 #include "Core.h"
 #include "Window.h"
 
-class Window;
-
 class DLL_API Application
 {
 public:

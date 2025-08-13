@@ -2,9 +2,6 @@
 
 #include "Entity.h"
 
-//Declare that entity exists since its a cyclical dependency
-class Entity;
-
 class DLL_API Component
 {
 public:

@@ -139,14 +139,24 @@ void File::Uninitialize()
 
 std::string File::GetFileName(std::string absolutePath)
 {
-    //remove directory path, only filename
-    int lastSlash = absolutePath.find_last_of("\\");
-    if(lastSlash != std::string::npos)
-        absolutePath = absolutePath.substr(absolutePath.find_last_of("\\") + 1);
-    //remove file extension
-    int lastDot = absolutePath.find_last_of(".");
-    if(lastDot != std::string::npos)
-        absolutePath.erase(absolutePath.begin() + absolutePath.find_last_of("."), absolutePath.end());
+    absolutePath = RemoveFileDirectory(absolutePath);
+    absolutePath = RemoveFileExtension(absolutePath);
 
     return absolutePath;
+}
+
+std::string File::RemoveFileDirectory(std::string path)
+{
+    int lastSlash = path.find_last_of("\\");
+    if(lastSlash != std::string::npos)
+        path = path.substr(path.find_last_of("\\") + 1);
+    return path;
+}
+
+std::string File::RemoveFileExtension(std::string path)
+{
+    int lastDot = path.find_last_of(".");
+    if(lastDot != std::string::npos)
+        path.erase(path.begin() + path.find_last_of("."), path.end());
+    return path;
 }
