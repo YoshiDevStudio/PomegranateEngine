@@ -2,12 +2,22 @@
 #include "BoxCollision.h"
 #include "CircleCollision.h"
 
-bool Collision::IsColliding(Collision* other)
+void Collision::CollisionEnter(CollisionInfo* info)
 {
-    return IsColliding(this, other);
+    std::cout << "Collision Entered" << std::endl;
 }
 
-bool Collision::IsColliding(Collision* first, Collision* second)
+void Collision::CollisionExit(CollisionInfo* info)
+{
+    std::cout << "Collision Exited" << std::endl;
+}
+
+bool Collision::CheckCollision(Collision* other, CollisionInfo& collisionInfo)
+{
+    return CheckCollision(this, other, collisionInfo);
+}
+
+bool Collision::CheckCollision(Collision* first, Collision* second, CollisionInfo& collisionInfo)
 {
     switch(first->shape)
     {
@@ -15,10 +25,10 @@ bool Collision::IsColliding(Collision* first, Collision* second)
         switch(second->shape)
         {
             case ShapeType::Box:
-                return Collision::IsColliding(dynamic_cast<BoxCollision*>(first), dynamic_cast<BoxCollision*>(second));
+                return Collision::CheckCollision(dynamic_cast<BoxCollision*>(first), dynamic_cast<BoxCollision*>(second), collisionInfo);
                 break;
             case ShapeType::Circle:
-                return Collision::IsColliding(dynamic_cast<CircleCollision*>(second), dynamic_cast<BoxCollision*>(first));
+                return Collision::CheckCollision(dynamic_cast<CircleCollision*>(second), dynamic_cast<BoxCollision*>(first), collisionInfo);
                 break;
         }
         break;
@@ -26,10 +36,10 @@ bool Collision::IsColliding(Collision* first, Collision* second)
         switch(second->shape)
         {
             case ShapeType::Box:
-                return Collision::IsColliding(dynamic_cast<CircleCollision*>(first), dynamic_cast<BoxCollision*>(second));
+                return Collision::CheckCollision(dynamic_cast<CircleCollision*>(first), dynamic_cast<BoxCollision*>(second), collisionInfo);
                 break;
             case ShapeType::Circle:
-                return Collision::IsColliding(dynamic_cast<CircleCollision*>(second), dynamic_cast<CircleCollision*>(first));
+                return Collision::CheckCollision(dynamic_cast<CircleCollision*>(second), dynamic_cast<CircleCollision*>(first), collisionInfo);
                 break;
         }
         break;
@@ -37,23 +47,64 @@ bool Collision::IsColliding(Collision* first, Collision* second)
     return false;
 }
 
-bool Collision::IsColliding(BoxCollision* first, BoxCollision* second)
+bool Collision::CheckCollision(BoxCollision* first, BoxCollision* second, CollisionInfo& collisionInfo)
 {
-    Transform2D* fTrans = first->entity->transform;
-    Transform2D* sTrans = second->entity->transform;
+    glm::vec2 fPos = first->entity->transform->globalPosition;
+    glm::vec2 sPos = second->entity->transform->globalPosition;
+    
 
-    bool intersection = fTrans->globalPosition.x > (sTrans->globalPosition.x + second->boxExtents.x) || sTrans->globalPosition.x > (fTrans->globalPosition.x + first->boxExtents.x)
-        || fTrans->globalPosition.y > (sTrans->globalPosition.y + second->boxExtents.y) || sTrans->globalPosition.y > (fTrans->globalPosition.y + first->boxExtents.y);
+    bool intersection = fPos.x > (sPos.x + second->boxExtents.x) || sPos.x > (fPos.x + first->boxExtents.x)
+        || fPos.y > (sPos.y + second->boxExtents.y) || sPos.y > (fPos.y + first->boxExtents.y);
+    
+    glm::vec2 fHalfExtents = first->boxExtents / 2.0f;
+    glm::vec2 sHalfExtents = second->boxExtents / 2.0f;
+    if(!intersection)
+    {
+        const glm::vec2 faces[4] = 
+        {
+            glm::vec2(-1, 0), glm::vec2(1, 0),
+            glm::vec2(0, -1), glm::vec2(0, 1)
+        };
+
+        glm::vec2 fMax = fPos + fHalfExtents;
+        glm::vec2 fMin = fPos - fHalfExtents;
+
+        glm::vec2 sMax = sPos + sHalfExtents;
+        glm::vec2 sMin = sPos - sHalfExtents;
+
+        float distances[4] = 
+        {
+            (sMax.x - fMin.x), //distance of second box to LEFT of first box
+            (fMax.x - sMin.x), //distance of second box to RIGHT of first box
+            (sMax.y - fMin.y), //distance of second box to BOTTOM of first box
+            (fMax.y - sMin.y)  //distance of second box to TOP of first box
+        };
+        float penetration = FLT_MAX;
+        glm::vec2 bestAxis;
+
+        for(int i = 0; i < 4; i++)
+        {
+            if(distances[i] < penetration)
+            {
+                penetration = distances[i];
+                bestAxis = faces[i];
+            }
+        }
+        glm::vec2 a, b;
+
+        collisionInfo.AddContactPoint(a, b, bestAxis, penetration);
+        return true;
+    }
     return !intersection;
 }
 
-bool Collision::IsColliding(CircleCollision* first, BoxCollision* second)
+bool Collision::CheckCollision(CircleCollision* first, BoxCollision* second, CollisionInfo& collisionInfo)
 {
     glm::vec2 fPos = first->entity->transform->globalPosition + first->offset;
     glm::vec2 sPos = second->entity->transform->globalPosition + second->offset;
-    glm::vec2 sScale = second->entity->transform->globalScale * second->boxExtents;
+    glm::vec2 halfExtents = second->boxExtents / 2.0f;
 
-    glm::vec2 closestPoint;
+    /*glm::vec2 closestPoint;
 
     if(fPos.x < sPos.x)
         closestPoint.x = sPos.x;
@@ -74,15 +125,33 @@ bool Collision::IsColliding(CircleCollision* first, BoxCollision* second)
 
     float distanceSquared = (xDelta * xDelta) + (yDelta * yDelta);
 
-    return distanceSquared < (first->radius * first->radius);
+    return distanceSquared < (first->radius * first->radius);*/
+
+    glm::vec2 delta = fPos - sPos;
+    glm::vec2 closestPointOnBox = glm::clamp(delta, -halfExtents, halfExtents);
+
+    glm::vec2 localPoint = delta - closestPointOnBox;
+    float distance = glm::length(localPoint);
+
+    if(distance < first->radius)
+    {
+        float penetration = first->radius - distance;
+        glm::vec2 normal = glm::normalize(localPoint);
+        glm::vec2 a = glm::vec2(0, 0);
+        glm::vec2 b = -normal * first->radius;
+
+        collisionInfo.AddContactPoint(a, b, normal, penetration);
+        return true;
+    }
+    return false;
 }
 
-bool Collision::IsColliding(CircleCollision* first, CircleCollision* second)
+bool Collision::CheckCollision(CircleCollision* first, CircleCollision* second, CollisionInfo& collisionInfo)
 {
     glm::vec2 fPos = first->entity->transform->globalPosition + first->offset;
     glm::vec2 sPos = second->entity->transform->globalPosition + second->offset;
 
-    float totalRadiusSquared = first->radius + second->radius;
+    /*float totalRadiusSquared = first->radius + second->radius;
     totalRadiusSquared = totalRadiusSquared * totalRadiusSquared;
 
     float xDelta = sPos.x - fPos.x;
@@ -90,5 +159,21 @@ bool Collision::IsColliding(CircleCollision* first, CircleCollision* second)
 
     float distanceSquared = (xDelta * xDelta) + (yDelta * yDelta);
     
-    return distanceSquared < totalRadiusSquared;
+    return distanceSquared < totalRadiusSquared;*/
+
+    float radii = first->radius + second->radius;
+    glm::vec2 delta = sPos - fPos;
+    float deltaLength = glm::length(delta);
+
+    if(deltaLength < radii)
+    {
+        float penetration = (radii - deltaLength);
+        glm::vec2 normal = glm::normalize(delta);
+        glm::vec2 a = normal * first->radius;
+        glm::vec2 b = -normal * second->radius;
+
+        collisionInfo.AddContactPoint(a, b, normal, penetration);
+        return true;
+    }
+    return false;
 }

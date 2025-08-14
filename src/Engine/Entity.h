@@ -23,6 +23,7 @@ public:
     bool RemoveChild(Entity* child);
     Entity* GetChild(std::string name);
     Entity* GetChildByIndex(int index);
+    std::vector<Entity*> GetChildren();
     Entity* GetRootEntity();
     std::string GetPath();
     

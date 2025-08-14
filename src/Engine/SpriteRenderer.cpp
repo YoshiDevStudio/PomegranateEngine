@@ -35,8 +35,8 @@ void SpriteRenderer::Draw()
 
     dstRect.x = entity->transform->globalPosition.x;
     dstRect.y = entity->transform->globalPosition.y;
-    dstRect.w = ((float)tex2D->width) * entity->transform->globalScale.x;
-    dstRect.h = ((float)tex2D->height) * entity->transform->globalScale.y;
+    dstRect.w = ((float)tex2D->size.x) * entity->transform->globalScale.x;
+    dstRect.h = ((float)tex2D->size.y) * entity->transform->globalScale.y;
 
     srcRect.x = clipRect.x;
     srcRect.y = clipRect.y;
@@ -76,8 +76,8 @@ void SpriteRenderer::ResetClipRect()
     SDL_FRect rect;
     rect.x = 0;
     rect.y = 0;
-    rect.w = GetTexture()->width;
-    rect.h = GetTexture()->height;
+    rect.w = GetTexture()->size.x;
+    rect.h = GetTexture()->size.y;
 
     clipRect = rect;
 }

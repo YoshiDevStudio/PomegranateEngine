@@ -178,6 +178,11 @@ Entity* Entity::GetChildByIndex(int index)
     return children[index];
 }
 
+std::vector<Entity*> Entity::GetChildren()
+{
+    return this->children;
+}
+
 //Get the entity at the highest level of the entity tree
 Entity* Entity::GetRootEntity()
 {

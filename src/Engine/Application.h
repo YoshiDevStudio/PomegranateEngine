@@ -2,6 +2,7 @@
 
 #include "Core.h"
 #include "Window.h"
+#include "Physics.h"
 
 class DLL_API Application
 {

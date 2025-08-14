@@ -5,9 +5,6 @@
 class Game : public Application
 {
 public:
-    Game() : Application() {}
-    ~Game() = default;
-
     void Start() override;
     void Update() override;
 };

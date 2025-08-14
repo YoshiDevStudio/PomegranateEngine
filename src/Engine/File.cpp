@@ -71,9 +71,9 @@ std::vector<Tile> File::LoadTilemap(std::string filePath, int tileSize)
 {
     std::vector<Tile> tiles;
     Texture2D* tilemap = LoadPNG(filePath);
-    for(int y = 0; y < tilemap->height; y += tileSize)
+    for(int y = 0; y < tilemap->size.y; y += tileSize)
     {
-        for(int x = 0; x < tilemap->width; x += tileSize)
+        for(int x = 0; x < tilemap->size.x; x += tileSize)
         {
             Tile tile(glm::ivec2(x, y), tilemap, tileSize);
             tiles.push_back(tile);
@@ -88,7 +88,7 @@ Tile File::GetTileAtPos(std::string tilemapName, glm::ivec2 position)
 {
     std::vector<Tile> tiles = File::loadedTiles[tilemapName];
     //Tilemap is split into chunks of size: tileSize, so divide height by tileSize to be within bounds of array
-    return tiles[position.y * (tiles[0].tex2D->height / tiles[0].tileSize) + position.x];
+    return tiles[position.y * (tiles[0].tex2D->size.y / tiles[0].tileSize) + position.x];
 }
 
 //Loads all images in folder and converts them into an animation

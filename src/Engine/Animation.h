@@ -22,8 +22,8 @@ public:
 
         rect.x = 0;
         rect.y = 0;
-        rect.w = tex2D->width;
-        rect.h = tex2D->height;
+        rect.w = tex2D->size.x;
+        rect.h = tex2D->size.y;
 
         this->clipRect = rect;
     }

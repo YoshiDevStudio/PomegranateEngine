@@ -75,6 +75,14 @@ void Application::Run()
         this->Update();
         Level->Update();
 
+        Physics::DetectCollisions();
+
+        for(int i = 0; i < Physics::steps; i++)
+        {
+            Physics::ResolveCollisions();
+        }
+        Physics::ClearCollisions();
+
         RenderManager::Draw(window->renderer);
 
         SDL_SetRenderDrawColorFloat(window->renderer, 1.0, 1.0, 1.0, 1.0);

@@ -9,14 +9,14 @@ class DLL_API Texture2D
 public:
     Texture2D(int width, int height)
     {
-        this->width = width;
-        this->height = height;
+        this->size.x = width;
+        this->size.y = height;
     }
     ~Texture2D()
     {
         delete texture;
     }
     
-    int width, height;
+    glm::vec2 size;
     SDL_Texture* texture = nullptr;
 };
