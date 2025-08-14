@@ -1,20 +1,33 @@
 #include "Collision.h"
 #include "BoxCollision.h"
 #include "CircleCollision.h"
+#include "PhysicsBody.h"
 
-void Collision::CollisionEnter(CollisionInfo* info)
+void Collision::OnAttach()
 {
-    std::cout << "Collision Entered" << std::endl;
+    body = entity->GetComponent<PhysicsBody>();
+    if(body != nullptr)
+        body->collision = this;
 }
 
-void Collision::CollisionExit(CollisionInfo* info)
+void Collision::OnCollisionStay(Collision* other)
 {
-    std::cout << "Collision Exited" << std::endl;
+    std::cout << "On Collision" << std::endl;
 }
+
 
 bool Collision::CheckCollision(Collision* other, CollisionInfo& collisionInfo)
 {
+    if(this->entity == nullptr || other->entity == nullptr)
+        return false;
     return CheckCollision(this, other, collisionInfo);
+}
+
+PhysicsBody* Collision::GetPhysicsBody()
+{
+    if(body == nullptr)
+        body = entity->GetComponent<PhysicsBody>();
+    return body;
 }
 
 bool Collision::CheckCollision(Collision* first, Collision* second, CollisionInfo& collisionInfo)
@@ -51,13 +64,23 @@ bool Collision::CheckCollision(BoxCollision* first, BoxCollision* second, Collis
 {
     glm::vec2 fPos = first->entity->transform->globalPosition;
     glm::vec2 sPos = second->entity->transform->globalPosition;
-    
 
+    glm::vec2 fHalfExtents = first->boxExtents * 0.5f;
+    glm::vec2 sHalfExtents = second->boxExtents * 0.5f;
+
+    glm::vec2 fMax = fPos + fHalfExtents;
+    glm::vec2 fMin = fPos - fHalfExtents;
+
+    glm::vec2 sMax = sPos + sHalfExtents;
+    glm::vec2 sMin = sPos - sHalfExtents;
+    
+    float fRotation = first->entity->transform->globalRotationDegrees;
+    float sRotation = second->entity->transform->globalRotationDegrees;
+        //Use AABB Collisions
     bool intersection = fPos.x > (sPos.x + second->boxExtents.x) || sPos.x > (fPos.x + first->boxExtents.x)
         || fPos.y > (sPos.y + second->boxExtents.y) || sPos.y > (fPos.y + first->boxExtents.y);
     
-    glm::vec2 fHalfExtents = first->boxExtents / 2.0f;
-    glm::vec2 sHalfExtents = second->boxExtents / 2.0f;
+    
     if(!intersection)
     {
         const glm::vec2 faces[4] = 
@@ -65,12 +88,6 @@ bool Collision::CheckCollision(BoxCollision* first, BoxCollision* second, Collis
             glm::vec2(-1, 0), glm::vec2(1, 0),
             glm::vec2(0, -1), glm::vec2(0, 1)
         };
-
-        glm::vec2 fMax = fPos + fHalfExtents;
-        glm::vec2 fMin = fPos - fHalfExtents;
-
-        glm::vec2 sMax = sPos + sHalfExtents;
-        glm::vec2 sMin = sPos - sHalfExtents;
 
         float distances[4] = 
         {
@@ -93,6 +110,8 @@ bool Collision::CheckCollision(BoxCollision* first, BoxCollision* second, Collis
         glm::vec2 a, b;
 
         collisionInfo.AddContactPoint(a, b, bestAxis, penetration);
+        collisionInfo.first = first;
+        collisionInfo.second = second;
         return true;
     }
     return !intersection;
@@ -102,30 +121,7 @@ bool Collision::CheckCollision(CircleCollision* first, BoxCollision* second, Col
 {
     glm::vec2 fPos = first->entity->transform->globalPosition + first->offset;
     glm::vec2 sPos = second->entity->transform->globalPosition + second->offset;
-    glm::vec2 halfExtents = second->boxExtents / 2.0f;
-
-    /*glm::vec2 closestPoint;
-
-    if(fPos.x < sPos.x)
-        closestPoint.x = sPos.x;
-    else if(fPos.x > sPos.x + sScale.x)
-        closestPoint.x = sPos.x + sScale.x;
-    else
-        closestPoint.x = fPos.x;
-    
-    if(fPos.y < sPos.y)
-        closestPoint.y = sPos.y;
-    else if(fPos.y > sPos.y + sScale.y)
-        closestPoint.y = sPos.y + sScale.y;
-    else
-        closestPoint.y = fPos.y;
-    
-    float xDelta = closestPoint.x - fPos.x;
-    float yDelta = closestPoint.y - fPos.y;
-
-    float distanceSquared = (xDelta * xDelta) + (yDelta * yDelta);
-
-    return distanceSquared < (first->radius * first->radius);*/
+    glm::vec2 halfExtents = second->boxExtents * 0.5f;
 
     glm::vec2 delta = fPos - sPos;
     glm::vec2 closestPointOnBox = glm::clamp(delta, -halfExtents, halfExtents);
@@ -141,6 +137,8 @@ bool Collision::CheckCollision(CircleCollision* first, BoxCollision* second, Col
         glm::vec2 b = -normal * first->radius;
 
         collisionInfo.AddContactPoint(a, b, normal, penetration);
+        collisionInfo.first = first;
+        collisionInfo.second = second;
         return true;
     }
     return false;
@@ -150,16 +148,6 @@ bool Collision::CheckCollision(CircleCollision* first, CircleCollision* second, 
 {
     glm::vec2 fPos = first->entity->transform->globalPosition + first->offset;
     glm::vec2 sPos = second->entity->transform->globalPosition + second->offset;
-
-    /*float totalRadiusSquared = first->radius + second->radius;
-    totalRadiusSquared = totalRadiusSquared * totalRadiusSquared;
-
-    float xDelta = sPos.x - fPos.x;
-    float yDelta = sPos.y - fPos.y;
-
-    float distanceSquared = (xDelta * xDelta) + (yDelta * yDelta);
-    
-    return distanceSquared < totalRadiusSquared;*/
 
     float radii = first->radius + second->radius;
     glm::vec2 delta = sPos - fPos;
@@ -173,6 +161,8 @@ bool Collision::CheckCollision(CircleCollision* first, CircleCollision* second, 
         glm::vec2 b = -normal * second->radius;
 
         collisionInfo.AddContactPoint(a, b, normal, penetration);
+        collisionInfo.first = first;
+        collisionInfo.second = second;
         return true;
     }
     return false;

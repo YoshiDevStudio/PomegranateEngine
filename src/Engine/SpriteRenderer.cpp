@@ -33,8 +33,9 @@ void SpriteRenderer::Draw()
     SDL_FRect srcRect;
     SDL_FPoint center;
 
-    dstRect.x = entity->transform->globalPosition.x;
-    dstRect.y = entity->transform->globalPosition.y;
+    //center texture
+    dstRect.x = entity->transform->globalPosition.x - (tex2D->size.x / 2.0f);
+    dstRect.y = entity->transform->globalPosition.y - (tex2D->size.y / 2.0f);
     dstRect.w = ((float)tex2D->size.x) * entity->transform->globalScale.x;
     dstRect.h = ((float)tex2D->size.y) * entity->transform->globalScale.y;
 

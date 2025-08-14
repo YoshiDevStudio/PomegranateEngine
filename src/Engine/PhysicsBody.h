@@ -8,24 +8,27 @@
 class DLL_API PhysicsBody : public Component
 {
 public:
-    PhysicsBody(float mass = 1, bool useGravity = false);
+    PhysicsBody(float mass = 1.0f, bool useGravity = false);
 
-    void AddForce(glm::vec2& force);
+    virtual void OnAttach() override;
+
+    virtual void AddForce(glm::vec2& force);
     void ClearForces();
 
-    void SetMass(float mass);
-    void SetLinearVelocity(glm::vec2 linearVelocity);
-    void SetForce(glm::vec2 force);
+    virtual void ApplyLinearImpulse(glm::vec2 force);
 
-    float GetInverseMass();
+    virtual void SetMass(float mass);
+    virtual void SetLinearVelocity(glm::vec2 linearVelocity);
+    virtual void SetForce(glm::vec2 force);
+
+    virtual float GetInverseMass();
     glm::vec2 GetLinearVelocity();
     glm::vec2 GetForce();
 
     bool useGravity;
+    Collision* collision = nullptr;
 protected:
-    Collision* collision;
-
-    float inverseMass;
+    float inverseMass = 1.0f;
     glm::vec2 linearVelocity;
     glm::vec2 force;
 };

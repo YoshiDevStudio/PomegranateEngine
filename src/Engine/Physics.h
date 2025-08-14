@@ -6,6 +6,7 @@
 
 class Application;
 
+//TODO: Implement Angular Motion
 class DLL_API Physics
 {
 public:
@@ -16,10 +17,10 @@ public:
 private:
     //Collisions
     static void DetectCollisions();
-    static void ResolveCollisions();
+    static void ImpulseResolveCollision(Collision* first, Collision* second, ContactPoint& p);
     //Linear Motion
     static void IntegrateAcceleration();
     static void IntegrateVelocity();
 
-    static std::vector<CollisionInfo*> allCollisions;
+    static void ClearForces();
 };

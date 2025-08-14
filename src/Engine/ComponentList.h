@@ -7,3 +7,4 @@
 #include "BoxCollision.h"
 #include "CircleCollision.h"
 #include "PhysicsBody.h"
+#include "StaticBody.h"

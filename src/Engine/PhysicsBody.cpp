@@ -2,8 +2,15 @@
 
 PhysicsBody::PhysicsBody(float mass, bool useGravity)
 {
-    SetMass(mass);
+    this->inverseMass = 1.0f / mass;
     this->useGravity = useGravity;
+}
+
+void PhysicsBody::OnAttach()
+{
+    collision = entity->GetComponent<Collision>();
+    if(collision != nullptr)
+        collision->body = this;
 }
 
 void PhysicsBody::AddForce(glm::vec2& force)
@@ -16,9 +23,19 @@ void PhysicsBody::ClearForces()
     force = glm::vec2(0, 0);
 }
 
+void PhysicsBody::ApplyLinearImpulse(glm::vec2 force)
+{
+    linearVelocity += force * inverseMass;
+}
+
 void PhysicsBody::SetMass(float mass)
 {
-    this->inverseMass = 1 / mass;
+    if(mass == 0)
+    {
+        LOG_ERROR("mass cannot be 0");
+        return;
+    }
+    this->inverseMass = 1.0f / mass;
 }
 
 void PhysicsBody::SetLinearVelocity(glm::vec2 linearVelocity)
@@ -33,7 +50,7 @@ void PhysicsBody::SetForce(glm::vec2 force)
 
 float PhysicsBody::GetInverseMass()
 {
-    return this->inverseMass;
+    return inverseMass;
 }
 
 glm::vec2 PhysicsBody::GetLinearVelocity()

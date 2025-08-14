@@ -45,7 +45,7 @@ public:
             //If components[i] is of type T
             if(dynamic_cast<T*>(components[i]) != nullptr)
             {
-                return (T*)components[i];
+                return dynamic_cast<T*>(components[i]);
             }
         }
         return nullptr;

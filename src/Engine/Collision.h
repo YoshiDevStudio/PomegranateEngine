@@ -9,6 +9,7 @@
 class BoxCollision;
 class CircleCollision;
 class Collision;
+class PhysicsBody;
 
 struct DLL_API ContactPoint
 {
@@ -20,11 +21,10 @@ struct DLL_API ContactPoint
 
 struct DLL_API CollisionInfo
 {
-    Collision* first;
-    Collision* second;
+    Collision* first = nullptr;
+    Collision* second = nullptr;
     ContactPoint point;
 
-    int framesLeft;
     void AddContactPoint(glm::vec2& a, glm::vec2& b, glm::vec2& normal, float penetration)
     {
         point.a = a;
@@ -48,18 +48,18 @@ public:
     {
 
     }
-    void CollisionEnter(CollisionInfo* info);
-    void CollisionExit(CollisionInfo* info);
+    virtual void OnAttach() override;
+
+    void OnCollisionStay(Collision* info);
 
     bool CheckCollision(Collision* other, CollisionInfo& collisionInfo);
+
+    PhysicsBody* GetPhysicsBody();
 
     glm::vec2 offset;
     //determines if other collision objects will be able to walk through this collision object
     bool isTrigger = false;
-
-    //determines if the entity this collision is attached to will get pushed when colliding with other objects
-    bool isStatic = true;
-
+    PhysicsBody* body = nullptr;
 private:
     bool CheckCollision(Collision* first, Collision* second, CollisionInfo& collisionInfo);
     bool CheckCollision(BoxCollision* first, BoxCollision* second, CollisionInfo& collisionInfo);

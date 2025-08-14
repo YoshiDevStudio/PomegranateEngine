@@ -1,23 +1,19 @@
 #include "Physics.h"
 #include "Application.h"
 
-//amount of physics steps each frame
+//amount of physics steps per frame
 int Physics::steps = 4;
 glm::vec2 Physics::gravity = glm::vec2(0, 981.0f);
-
-std::vector<CollisionInfo*> Physics::allCollisions;
 
 void Physics::Update()
 {
     IntegrateAcceleration();
-    IntegrateVelocity();
-    DetectCollisions();
-
     for(int i = 0; i < steps; i++)
     {
-        ResolveCollisions();
+        DetectCollisions();
+        IntegrateVelocity();
     }
-    allCollisions.clear();
+    ClearForces();
 }
 
 void Physics::DetectCollisions()
@@ -36,34 +32,44 @@ void Physics::DetectCollisions()
             CollisionInfo info;
             if(collisionObjects[i]->CheckCollision(collisionObjects[j], info))
             {
-                info.framesLeft = steps;
-                allCollisions.push_back(&info);
+                ImpulseResolveCollision(info.first, info.second, info.point);
+                info.first->OnCollisionStay(info.second);
+                info.second->OnCollisionStay(info.first);
             }
         }
     }
 }
 
-void Physics::ResolveCollisions()
+void Physics::ImpulseResolveCollision(Collision* first, Collision* second, ContactPoint& p)
 {
-    for(int i = 0; i < allCollisions.size(); i++)
-    {
-        CollisionInfo* currentInfo = allCollisions[i];
-        if(currentInfo->first == nullptr || currentInfo->second == nullptr)
-            continue;
+    PhysicsBody* fBody = first->GetPhysicsBody();
+    PhysicsBody* sBody = second->GetPhysicsBody();
 
-        if(currentInfo->framesLeft == steps)
-        {
-            currentInfo->first->CollisionEnter(currentInfo);
-            currentInfo->second->CollisionEnter(currentInfo);
-        }
-        currentInfo->framesLeft -= 1;
-        if(currentInfo->framesLeft <= 0)
-        {
-            currentInfo->first->CollisionExit(currentInfo);
-            currentInfo->second->CollisionExit(currentInfo);
-            allCollisions.erase(allCollisions.begin() + i);
-        }
-    }
+    if(fBody == nullptr || sBody == nullptr)
+        return;
+    Transform2D* fTrans = first->entity->transform;
+    Transform2D* sTrans = second->entity->transform;
+    
+    float totalMass = fBody->GetInverseMass() + sBody->GetInverseMass();
+    if(totalMass <= 0)
+        return;
+
+    fTrans->localPosition = fTrans->globalPosition - (p.normal * p.penetration * (fBody->GetInverseMass() / totalMass));
+    sTrans->localPosition = sTrans->globalPosition + (p.normal * p.penetration * (sBody->GetInverseMass() / totalMass));
+
+    glm::vec2 fFullVelocity = fBody->GetLinearVelocity();
+    glm::vec2 sFullVelocity = sBody->GetLinearVelocity();
+    glm::vec2 contactVelocity = sFullVelocity - fFullVelocity;
+    
+    float impulseForce = glm::dot(contactVelocity, p.normal);
+
+    float cRestitution = 0.66f;
+    float j = (-(1.0f + cRestitution) * impulseForce) / (totalMass);
+    glm::vec2 fullImpulse = p.normal * j;
+
+    fBody->ApplyLinearImpulse(-fullImpulse);
+    sBody->ApplyLinearImpulse(fullImpulse);
+
 }
 
 void Physics::IntegrateAcceleration()
@@ -75,6 +81,7 @@ void Physics::IntegrateAcceleration()
         if(body == nullptr)
             continue;
         
+        //Linear Motion
         float inverseMass = body->GetInverseMass();
         glm::vec2 linearVelocity = body->GetLinearVelocity();
         glm::vec2 force = body->GetForce();
@@ -87,6 +94,8 @@ void Physics::IntegrateAcceleration()
 
         linearVelocity += accel * Time::deltaTime;
         body->SetLinearVelocity(linearVelocity);
+
+        //TODO: Angular Acceleration here
     }
 }
 
@@ -104,11 +113,24 @@ void Physics::IntegrateVelocity()
         
         Transform2D* transform = body->entity->transform;
 
+        //Linear Motion
         glm::vec2 linearVelocity = body->GetLinearVelocity();
         transform->localPosition += linearVelocity * Time::deltaTime;
 
         //Linear Damping
         linearVelocity *= frameDamping;
         body->SetLinearVelocity(linearVelocity);
+
+        //TODO: Angular Velocity here
     }
 }
+
+void Physics::ClearForces()
+{
+    std::vector<PhysicsBody*> bodies = Application::GetAllComponentsOfType<PhysicsBody>();
+    for(int i = 0; i < bodies.size(); i++)
+    {
+        bodies[i]->ClearForces();
+    }
+}
+
