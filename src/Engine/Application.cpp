@@ -75,13 +75,7 @@ void Application::Run()
         this->Update();
         Level->Update();
 
-        Physics::DetectCollisions();
-
-        for(int i = 0; i < Physics::steps; i++)
-        {
-            Physics::ResolveCollisions();
-        }
-        Physics::ClearCollisions();
+        Physics::Update();
 
         RenderManager::Draw(window->renderer);
 
