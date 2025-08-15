@@ -1,8 +1,11 @@
 #pragma once
 
+#include <set>
+#include <algorithm>
 #include "Transform2D.h"
 #include "Collision.h"
 #include "PhysicsBody.h"
+#include "QuadTree.h"
 
 class Application;
 
@@ -14,7 +17,11 @@ public:
 
     static int steps;
     static glm::vec2 gravity;
+    static bool useQuadTrees;
 private:
+    //Quadtree Phases
+    static void BroadPhase();
+    static void NarrowPhase();
     //Collisions
     static void DetectCollisions();
     static void ImpulseResolveCollision(Collision* first, Collision* second, ContactPoint& p);
@@ -23,4 +30,6 @@ private:
     static void IntegrateVelocity();
 
     static void ClearForces();
+
+    static std::set<CollisionInfo> broadPhaseCollisions;
 };

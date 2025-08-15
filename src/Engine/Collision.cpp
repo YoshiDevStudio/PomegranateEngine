@@ -5,9 +5,7 @@
 
 void Collision::OnAttach()
 {
-    body = entity->GetComponent<PhysicsBody>();
-    if(body != nullptr)
-        body->collision = this;
+    GetPhysicsBody();
 }
 
 void Collision::OnCollisionStay(Collision* other)
@@ -23,11 +21,29 @@ bool Collision::CheckCollision(Collision* other, CollisionInfo& collisionInfo)
     return CheckCollision(this, other, collisionInfo);
 }
 
+glm::vec2 Collision::GetGlobalPosition()
+{
+    if(this->entity == nullptr)
+    {
+        return this->offset;
+    }
+    return this->entity->transform->globalPosition + offset;
+}
+
 PhysicsBody* Collision::GetPhysicsBody()
 {
     if(body == nullptr)
         body = entity->GetComponent<PhysicsBody>();
     return body;
+}
+
+bool Collision::AABBTest(glm::vec2 fPos, glm::vec2 sPos, glm::vec2 fSize, glm::vec2 sSize)
+{
+        //Use AABB Collisions
+    bool intersection = fPos.x > (sPos.x + sSize.x) || sPos.x > (fPos.x + fSize.x)
+        || fPos.y > (sPos.y + sSize.y) || sPos.y > (fPos.y + fSize.y);
+    
+    return !intersection;
 }
 
 bool Collision::CheckCollision(Collision* first, Collision* second, CollisionInfo& collisionInfo)
@@ -62,8 +78,16 @@ bool Collision::CheckCollision(Collision* first, Collision* second, CollisionInf
 
 bool Collision::CheckCollision(BoxCollision* first, BoxCollision* second, CollisionInfo& collisionInfo)
 {
-    glm::vec2 fPos = first->entity->transform->globalPosition;
-    glm::vec2 sPos = second->entity->transform->globalPosition;
+    glm::vec2 fPos;
+    glm::vec2 sPos;
+    if(first->entity != nullptr)
+        fPos = first->entity->transform->globalPosition + first->offset;
+    else
+        fPos = first->offset;
+    if(second->entity != nullptr)
+        sPos = second->entity->transform->globalPosition + second->offset;
+    else
+        sPos = second->offset;
 
     glm::vec2 fHalfExtents = first->boxExtents * 0.5f;
     glm::vec2 sHalfExtents = second->boxExtents * 0.5f;
@@ -74,14 +98,11 @@ bool Collision::CheckCollision(BoxCollision* first, BoxCollision* second, Collis
     glm::vec2 sMax = sPos + sHalfExtents;
     glm::vec2 sMin = sPos - sHalfExtents;
     
-    float fRotation = first->entity->transform->globalRotationDegrees;
-    float sRotation = second->entity->transform->globalRotationDegrees;
         //Use AABB Collisions
-    bool intersection = fPos.x > (sPos.x + second->boxExtents.x) || sPos.x > (fPos.x + first->boxExtents.x)
-        || fPos.y > (sPos.y + second->boxExtents.y) || sPos.y > (fPos.y + first->boxExtents.y);
+    bool isColliding = AABBTest(fPos, sPos, first->boxExtents, second->boxExtents);
     
     
-    if(!intersection)
+    if(isColliding)
     {
         const glm::vec2 faces[4] = 
         {
@@ -114,13 +135,22 @@ bool Collision::CheckCollision(BoxCollision* first, BoxCollision* second, Collis
         collisionInfo.second = second;
         return true;
     }
-    return !intersection;
+    return isColliding;
 }
 
 bool Collision::CheckCollision(CircleCollision* first, BoxCollision* second, CollisionInfo& collisionInfo)
 {
-    glm::vec2 fPos = first->entity->transform->globalPosition + first->offset;
-    glm::vec2 sPos = second->entity->transform->globalPosition + second->offset;
+    glm::vec2 fPos;
+    glm::vec2 sPos;
+    if(first->entity != nullptr)
+        fPos = first->entity->transform->globalPosition + first->offset;
+    else
+        fPos = first->offset;
+    if(second->entity != nullptr)
+        sPos = second->entity->transform->globalPosition + second->offset;
+    else
+        sPos = second->offset;
+
     glm::vec2 halfExtents = second->boxExtents * 0.5f;
 
     glm::vec2 delta = fPos - sPos;
@@ -146,8 +176,16 @@ bool Collision::CheckCollision(CircleCollision* first, BoxCollision* second, Col
 
 bool Collision::CheckCollision(CircleCollision* first, CircleCollision* second, CollisionInfo& collisionInfo)
 {
-    glm::vec2 fPos = first->entity->transform->globalPosition + first->offset;
-    glm::vec2 sPos = second->entity->transform->globalPosition + second->offset;
+    glm::vec2 fPos;
+    glm::vec2 sPos;
+    if(first->entity != nullptr)
+        fPos = first->entity->transform->globalPosition + first->offset;
+    else
+        fPos = first->offset;
+    if(second->entity != nullptr)
+        sPos = second->entity->transform->globalPosition + second->offset;
+    else
+        sPos = second->offset;
 
     float radii = first->radius + second->radius;
     glm::vec2 delta = sPos - fPos;

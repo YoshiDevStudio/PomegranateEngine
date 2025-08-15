@@ -13,5 +13,10 @@ public:
         this->shape = ShapeType::Circle;
     }
 
+    virtual glm::vec2 GetBroadPhaseAABBSize() override
+    {
+        return glm::vec2(radius, radius);
+    }
+
     float radius;
 };

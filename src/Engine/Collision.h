@@ -32,6 +32,14 @@ struct DLL_API CollisionInfo
         point.normal = normal;
         point.penetration = penetration;
     }
+    bool operator < (const CollisionInfo& other) const 
+    {
+        //this operator is necessary for QuadTrees to operate
+        size_t otherHash = (size_t)other.first + ((size_t)other.second << 8);
+        size_t thisHash = (size_t)first + ((size_t)second << 8);
+
+        return (thisHash < otherHash);
+    }
 };
 
 //Collision sizes are unaffected by Entitys scale
@@ -53,10 +61,14 @@ public:
     void OnCollisionStay(Collision* info);
 
     bool CheckCollision(Collision* other, CollisionInfo& collisionInfo);
+    static bool AABBTest(glm::vec2 fPos, glm::vec2 sPos, glm::vec2 fSize, glm::vec2 sSize);
 
+    virtual glm::vec2 GetBroadPhaseAABBSize() = 0;
+
+    glm::vec2 GetGlobalPosition();
     PhysicsBody* GetPhysicsBody();
 
-    glm::vec2 offset;
+    glm::vec2 offset = glm::vec2(0, 0);
     //determines if other collision objects will be able to walk through this collision object
     bool isTrigger = false;
     PhysicsBody* body = nullptr;

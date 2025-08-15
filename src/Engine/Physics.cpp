@@ -4,16 +4,68 @@
 //amount of physics steps per frame
 int Physics::steps = 4;
 glm::vec2 Physics::gravity = glm::vec2(0, 981.0f);
+bool Physics::useQuadTrees = true;
+std::set<CollisionInfo> Physics::broadPhaseCollisions;
 
 void Physics::Update()
 {
     IntegrateAcceleration();
     for(int i = 0; i < steps; i++)
     {
-        DetectCollisions();
+        if(useQuadTrees)
+        {
+            BroadPhase();
+            NarrowPhase();
+        }
+        else
+            DetectCollisions();
+            
         IntegrateVelocity();
     }
     ClearForces();
+}
+
+void Physics::BroadPhase()
+{
+    broadPhaseCollisions.clear();
+    QuadTree<Collision*> tree(glm::vec2(1024), 7, 6);
+
+    std::vector<Collision*> collisionObjects = Application::GetAllComponentsOfType<Collision>();
+    for(int i = 0; i < collisionObjects.size(); i++)
+    {
+        glm::vec2 halfSize = collisionObjects[i]->GetBroadPhaseAABBSize();
+        glm::vec2 pos = collisionObjects[i]->GetGlobalPosition();
+        tree.Insert(collisionObjects[i], pos, halfSize);
+    }
+
+    tree.OperateOnContents([&](std::list<QuadTreeEntry<Collision*>>& data) 
+    {
+        CollisionInfo info;
+        for(auto i = data.begin(); i != data.end(); ++i)
+        {
+            for(auto j = std::next(i); j != data.end(); ++j)
+            {
+                //check if this pair of items is already in the collision set or in another quadtree node
+                info.first = std::min((*i).object, (*j).object);
+                info.second = std::max((*i).object, (*j).object);
+                broadPhaseCollisions.insert(info);
+            }
+        }
+    });
+}
+
+void Physics::NarrowPhase()
+{
+    for(std::set<CollisionInfo>::iterator i = broadPhaseCollisions.begin(); i != broadPhaseCollisions.end(); ++i)
+    {
+        CollisionInfo info = *i;
+        if(info.first->CheckCollision(info.second, info))
+        {
+            ImpulseResolveCollision(info.first, info.second, info.point);
+            info.first->OnCollisionStay(info.second);
+            info.second->OnCollisionStay(info.first);
+        }
+    }
 }
 
 void Physics::DetectCollisions()
@@ -52,7 +104,7 @@ void Physics::ImpulseResolveCollision(Collision* first, Collision* second, Conta
     float totalMass = fBody->GetInverseMass() + sBody->GetInverseMass();
     if(totalMass == 0)
         return;
-    std::cout << p.normal.x << ", " << p.normal.y << std::endl;
+        
     if(fBody->GetInverseMass() != 0)
         fTrans->localPosition = fTrans->globalPosition - (p.normal * p.penetration * (fBody->GetInverseMass() / totalMass));
     if(sBody->GetInverseMass() != 0)

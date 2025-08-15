@@ -13,5 +13,10 @@ public:
         this->shape = ShapeType::Box;
     }
 
+    virtual glm::vec2 GetBroadPhaseAABBSize() override
+    {
+        return this->boxExtents / 2.0f;
+    }
+
     glm::vec2 boxExtents;
 };
