@@ -19,7 +19,6 @@ void Physics::Update()
 void Physics::DetectCollisions()
 {
     std::vector<Collision*> collisionObjects = Application::GetAllComponentsOfType<Collision>();
-    std::vector<CollisionInfo> collisions;
     for(int i = 0; i < collisionObjects.size(); i++)
     {
         if(collisionObjects[i] == nullptr || collisionObjects[i]->entity == nullptr)
@@ -51,11 +50,13 @@ void Physics::ImpulseResolveCollision(Collision* first, Collision* second, Conta
     Transform2D* sTrans = second->entity->transform;
     
     float totalMass = fBody->GetInverseMass() + sBody->GetInverseMass();
-    if(totalMass <= 0)
+    if(totalMass == 0)
         return;
-
-    fTrans->localPosition = fTrans->globalPosition - (p.normal * p.penetration * (fBody->GetInverseMass() / totalMass));
-    sTrans->localPosition = sTrans->globalPosition + (p.normal * p.penetration * (sBody->GetInverseMass() / totalMass));
+    std::cout << p.normal.x << ", " << p.normal.y << std::endl;
+    if(fBody->GetInverseMass() != 0)
+        fTrans->localPosition = fTrans->globalPosition - (p.normal * p.penetration * (fBody->GetInverseMass() / totalMass));
+    if(sBody->GetInverseMass() != 0)
+        sTrans->localPosition = sTrans->globalPosition + (p.normal * p.penetration * (sBody->GetInverseMass() / totalMass));
 
     glm::vec2 fFullVelocity = fBody->GetLinearVelocity();
     glm::vec2 sFullVelocity = sBody->GetLinearVelocity();

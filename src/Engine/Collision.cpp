@@ -12,7 +12,7 @@ void Collision::OnAttach()
 
 void Collision::OnCollisionStay(Collision* other)
 {
-    std::cout << "On Collision" << std::endl;
+    //std::cout << "On Collision" << std::endl;
 }
 
 
@@ -131,9 +131,9 @@ bool Collision::CheckCollision(CircleCollision* first, BoxCollision* second, Col
 
     if(distance < first->radius)
     {
-        float penetration = first->radius - distance;
+        float penetration = distance - first->radius;
         glm::vec2 normal = glm::normalize(localPoint);
-        glm::vec2 a = glm::vec2(0, 0);
+        glm::vec2 a;
         glm::vec2 b = -normal * first->radius;
 
         collisionInfo.AddContactPoint(a, b, normal, penetration);

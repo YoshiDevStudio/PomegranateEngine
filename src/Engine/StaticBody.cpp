@@ -33,5 +33,5 @@ void StaticBody::SetForce(glm::vec2 force)
 
 float StaticBody::GetInverseMass()
 {
-    return inverseMass;
+    return 0.0f;
 }
