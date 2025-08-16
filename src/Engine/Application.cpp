@@ -82,6 +82,9 @@ void Application::Run()
         SDL_SetRenderDrawColorFloat(window->renderer, 1.0, 1.0, 1.0, 1.0);
         SDL_RenderDebugText(window->renderer, 640 / 2, 480 / 2, std::to_string(Time::deltaTime).append("ms").c_str());
 
+    #ifdef _DEBUG
+        Gizmos::DrawQueued();
+    #endif
         SDL_RenderPresent(window->renderer);
     }
 

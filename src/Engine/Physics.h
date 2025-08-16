@@ -7,6 +7,9 @@
 #include "PhysicsBody.h"
 #include "QuadTree.h"
 #include "Ray.h"
+#ifdef _DEBUG
+    #include "Gizmos.h"
+#endif
 
 class Application;
 

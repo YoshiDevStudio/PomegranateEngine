@@ -28,24 +28,19 @@ void Physics::Update()
 bool Physics::Raycast(Ray& ray, RaycastHit& hitInfo)
 {
     std::vector<Collision*> collisionObjects = Application::GetAllComponentsOfType<Collision>();
-    SDL_SetRenderDrawColorFloat(Application::window->renderer, 0.0, 1.0, 0.0, 1.0);
-    SDL_RenderLine(Application::window->renderer, ray.GetPosition().x, ray.GetPosition().y, ray.GetPosition().x + ray.GetDirection().x * 1000.0f, ray.GetPosition().y + ray.GetDirection().y * 1000.0f);
     bool hit = false;
     for(int i = 0; i < collisionObjects.size(); i++)
     {
         hit = collisionObjects[i]->CheckRayCollision(ray, hitInfo);
     }
+#ifdef _DEBUG
+    Gizmos::DrawLine(ray.GetPosition(), ray.GetPosition() + ray.GetDirection() * 1000.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
     if(hit == true)
     {
-        SDL_SetRenderDrawColorFloat(Application::window->renderer, 1.0, 0.0, 0.0, 1.0);
-        SDL_FRect rect;
-        rect.w = 10.0f;
-        rect.h = 10.0f;
-        rect.x = hitInfo.hitPosition.x - rect.w * 0.5f;
-        rect.y = hitInfo.hitPosition.y - rect.h * 0.5f;
-        //SDL_RenderPoint(Application::window->renderer, ray.GetDirection().x * hitInfo.rayDistance - 1.0f, ray.GetDirection().y * hitInfo.rayDistance - 1.0f);
-        SDL_RenderRect(Application::window->renderer, &rect);
+        const glm::vec2 size = glm::vec2(10.0f, 10.0f);
+        Gizmos::DrawRect(hitInfo.hitPosition - size * 0.5f, size, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
     }
+#endif
     return hit;
 }
 

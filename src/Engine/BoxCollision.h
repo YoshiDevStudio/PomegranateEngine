@@ -2,6 +2,9 @@
 
 #include "DLL_Build.h"
 #include "Collision.h"
+#ifdef _DEBUG
+    #include "Gizmos.h"
+#endif
 
 class DLL_API BoxCollision : public Collision
 {
@@ -12,6 +15,17 @@ public:
         this->offset = offset;
         this->shape = ShapeType::Box;
     }
+#ifdef _DEBUG
+    virtual void Update() override
+    {
+        glm::vec2 pos;
+        if(entity == nullptr)
+            pos = offset;
+        else
+            pos = entity->transform->globalPosition + offset;
+        Gizmos::DrawRect(pos - (boxExtents * 0.5f), boxExtents, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+    }
+#endif
 
     virtual glm::vec2 GetBroadPhaseAABBSize() override
     {
