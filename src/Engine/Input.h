@@ -1,8 +1,10 @@
 #pragma once
 
 #include <SDL3/SDL.h>
+#include <glm/vec2.hpp>
 
 #include "Core.h"
+#include "Event.h"
 
 //!!TODO: Implement Mouse Events, Keymods, Gamepads
 class DLL_API Input
@@ -15,7 +17,8 @@ public:
     static bool IsKeyPressed(int key);
     static bool IsKeyReleased(int key);
 
-    static glm::vec2 GetMousePosition();
+    static glm::vec2 GetScreenMousePosition();
+    static glm::vec2 GetWorldMousePosition();
     static bool IsMouseButtonPressed(SDL_MouseButtonFlags button);
     static bool IsMouseButtonReleased(SDL_MouseButtonFlags button);
 

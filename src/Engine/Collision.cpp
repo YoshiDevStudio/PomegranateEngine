@@ -303,6 +303,8 @@ bool Collision::RayCollision(const Ray& ray, BoxCollision* collision, RaycastHit
     if(tMax >= tMin)
     {
         float bestT = std::min(tMin, tMax);
+        if(bestT < 0.0f)
+            return false;
         glm::vec2 intersection = rayPos + (ray.GetDirection() * bestT);
 
         hitInfo.hitPosition = intersection;

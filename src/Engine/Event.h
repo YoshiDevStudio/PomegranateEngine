@@ -4,7 +4,7 @@
 #include <iostream>
 #include <stdio.h>
 
-#include "DLL_Build.h"
+#include "Core.h"
 
 template <typename returnType, typename... args>
 class DelegateBase

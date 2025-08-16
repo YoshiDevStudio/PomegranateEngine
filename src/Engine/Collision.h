@@ -45,6 +45,7 @@ struct DLL_API CollisionInfo
 };
 
 //Collision sizes are unaffected by Entitys scale
+//!!FIXME: isTrigger is unused
 class DLL_API Collision : public Component
 {
 public:

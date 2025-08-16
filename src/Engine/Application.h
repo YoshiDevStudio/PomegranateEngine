@@ -3,6 +3,8 @@
 #include "Core.h"
 #include "Window.h"
 #include "Physics.h"
+#include "RenderManager.h"
+#include "File.h"
 
 class DLL_API Application
 {

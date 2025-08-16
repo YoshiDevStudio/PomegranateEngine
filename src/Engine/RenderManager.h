@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core.h"
+#include "SDL3/SDL.h"
 
 struct DLL_API QueuedDraw
 {

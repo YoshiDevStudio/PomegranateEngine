@@ -21,9 +21,9 @@ public:
 
     SDL_WindowFlags GetWindowFlags();
 
-    void SetWindowRect(glm::ivec2 rect);
-    void SetWindowRect(int width, int height);
-    glm::ivec2 GetWindowRect();
+    void SetWindowSize(glm::ivec2 rect);
+    void SetWindowSize(int width, int height);
+    glm::ivec2 GetWindowSize();
 
     void SetWindowResizable(bool isResizable);
     void SetWindowFullscreen(bool isFullscreen);
@@ -34,7 +34,7 @@ private:
     std::string title;
 
     SDL_WindowFlags windowFlags = 0;
-    glm::ivec2 windowRect = glm::ivec2(0, 0);
+    glm::ivec2 windowSize = glm::ivec2(0, 0);
     //Used for calculating deltaTime
     float prevTime = 0;
 };

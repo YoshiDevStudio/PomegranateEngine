@@ -1,4 +1,5 @@
 #include "Input.h"
+#include "Camera.h"
 
 Event<void, SDL_Event*>* Input::OnMouseWheelEvent;
 //Constructor
@@ -34,11 +35,22 @@ bool Input::IsKeyReleased(int key)
     return SDL_GetKeyboardState(NULL)[scancode] == false;
 }
 
-glm::vec2 Input::GetMousePosition()
+glm::vec2 Input::GetScreenMousePosition()
 {
     float x, y;
     SDL_GetMouseState(&x, &y);
     return glm::vec2(x, y);
+}
+
+glm::vec2 Input::GetWorldMousePosition()
+{
+    glm::vec2 screenPos = GetScreenMousePosition();
+    Camera* cam = Camera::currentCamera;
+    if(cam != nullptr)
+    {
+        return screenPos + cam->GetCenterPos();
+    }
+    return screenPos;
 }
 
 bool Input::IsMouseButtonPressed(SDL_MouseButtonFlags button)

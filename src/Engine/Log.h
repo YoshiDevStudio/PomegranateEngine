@@ -7,7 +7,7 @@
 #include <string>
 
 #include "Time_Utils.h"
-#include "DLL_Build.h"
+#include "Core.h"
 
 //Can print primitive types, strings, and memory addresses
 class DLL_API Log

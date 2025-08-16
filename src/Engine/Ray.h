@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DLL_Build.h"
+#include "Core.h"
 #include <glm/vec2.hpp>
 #include <vector>
 #include "Collision.h"

@@ -34,12 +34,14 @@ bool Physics::Raycast(Ray& ray, RaycastHit& hitInfo)
         hit = collisionObjects[i]->CheckRayCollision(ray, hitInfo);
     }
 #ifdef _DEBUG
-    Gizmos::DrawLine(ray.GetPosition(), ray.GetPosition() + ray.GetDirection() * 1000.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
     if(hit == true)
     {
+        Gizmos::DrawLine(ray.GetPosition(), hitInfo.hitPosition, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
         const glm::vec2 size = glm::vec2(10.0f, 10.0f);
         Gizmos::DrawRect(hitInfo.hitPosition - size * 0.5f, size, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
     }
+    else
+        Gizmos::DrawLine(ray.GetPosition(), ray.GetPosition() + ray.GetDirection() * 1000.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 #endif
     return hit;
 }

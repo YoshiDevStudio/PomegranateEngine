@@ -22,6 +22,12 @@ void Tilemap::SetTile(glm::ivec2 globalPosition, std::string texName, int tileIn
     SetTile(globalPosition, tile);
 }
 
+void Tilemap::SetTile(glm::ivec2 globalPosition, std::string texName, glm::ivec2 tileIndexPosition)
+{
+    Tile tile = File::GetTileAtPos(texName, tileIndexPosition);
+    SetTile(globalPosition, tile);
+}
+
 void Tilemap::SetTile(glm::ivec2 globalPosition, Tile tile)
 {
     globalPosition = AlignPosToGrid(globalPosition);
@@ -147,9 +153,8 @@ void Tilemap::DrawTile(glm::vec2 position, Tile tile)
     srcRect.w = tileSize;
     srcRect.h = tileSize;
 
-    center.x = dstRect.w / 2.0;
-    center.y = dstRect.h / 2.0;
-
+    center.x = dstRect.w * 0.5f;
+    center.y = dstRect.h * 0.5f;
     QueuedDraw* drawCall = new QueuedDraw(tile.tex2D->texture, &srcRect, &dstRect, tile.zIndex, entity->transform->globalRotationDegrees, &center);
     RenderManager::Queue(drawCall);
 }

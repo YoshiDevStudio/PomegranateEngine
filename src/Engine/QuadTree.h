@@ -3,7 +3,7 @@
 #include <functional>
 #include <list>
 
-#include "DLL_Build.h"
+#include "Core.h"
 
 template <class T>
 class QuadTree;

@@ -8,3 +8,4 @@
 #include "CircleCollision.h"
 #include "PhysicsBody.h"
 #include "StaticBody.h"
+#include "Camera.h"

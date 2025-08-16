@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DLL_Build.h"
+#include "Core.h"
 
 #include "SDL3/SDL.h"
 #include "Transform2D.h"

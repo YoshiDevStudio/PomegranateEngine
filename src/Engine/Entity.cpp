@@ -94,7 +94,7 @@ bool Entity::RemoveChild(Entity* child)
         if(child->GetName() == children[i]->GetName())
         {
             children.erase(children.begin() + i);
-            child->SetParent(nullptr);
+            child->parent = nullptr;
             return true;
         }
     }
@@ -212,6 +212,8 @@ std::string Entity::GetPath()
 //Use AddChild() for Entity Hierarchy Structure
 void Entity::SetParent(Entity* parent)
 {
+    if(this->parent != nullptr)
+        parent->RemoveChild(this);
     this->parent = parent;
 }
 

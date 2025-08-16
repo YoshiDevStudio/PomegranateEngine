@@ -12,6 +12,7 @@
 #include "Texture2D.h"
 #include "Animation.h"
 #include "Tile.h"
+#include "Window.h"
 
 class DLL_API File
 {

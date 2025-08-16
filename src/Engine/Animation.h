@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "DLL_Build.h"
+#include "Core.h"
 #include "Texture2D.h"
 
 struct DLL_API AnimationFrame

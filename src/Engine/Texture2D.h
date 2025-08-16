@@ -1,8 +1,9 @@
 #pragma once
 
 #include <SDL3/SDL.h>
+#include <glm/vec2.hpp>
 
-#include "DLL_Build.h"
+#include "Core.h"
 
 class DLL_API Texture2D
 {

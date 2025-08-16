@@ -1,4 +1,5 @@
 #include "RenderManager.h"
+#include "Camera.h"
 
 std::vector<QueuedDraw*> RenderManager::drawCalls;
 
@@ -19,6 +20,16 @@ void RenderManager::Draw(SDL_Renderer* renderer)
             LOG_ERROR("Queued Draw call was nullptr");
             continue;
         }
+        Camera* cam = Camera::currentCamera;
+        if(cam != nullptr)
+        {
+            
+            //has to be ivec2 otherwise sprites using the srcRect fails to correctly clip the area it is set to
+            glm::ivec2 camCenter = cam->GetCenterPos();
+            draw->dstRect.x -= camCenter.x;
+            draw->dstRect.y -= camCenter.y;
+        }
+
         SDL_RenderTextureRotated(renderer, draw->texture, &draw->srcRect, &draw->dstRect, draw->rotation, &draw->center, draw->flipMode);
     }
     for(int i = 0; i < drawCalls.size(); i++)

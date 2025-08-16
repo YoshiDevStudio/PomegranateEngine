@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DLL_Build.h"
+#include "Core.h"
 #include "SpriteRenderer.h"
 #include "Event.h"
 #include "Animation.h"

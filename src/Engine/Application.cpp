@@ -43,7 +43,7 @@ void Application::Run()
         SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
         return;
     }
-    glm::ivec2 windowRect = window->GetWindowRect();
+    glm::ivec2 windowRect = window->GetWindowSize();
     if (!SDL_CreateWindowAndRenderer(window->GetTitle().c_str(), windowRect.x, windowRect.y, window->GetWindowFlags(), &window->sdlWindow, &window->renderer))
     {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());

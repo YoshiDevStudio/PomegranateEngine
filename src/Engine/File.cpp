@@ -149,7 +149,11 @@ std::string File::RemoveFileDirectory(std::string path)
 {
     int lastSlash = path.find_last_of("\\");
     if(lastSlash != std::string::npos)
-        path = path.substr(path.find_last_of("\\") + 1);
+        path = path.substr(lastSlash + 1);
+    else
+        lastSlash = path.find_last_of("/");
+    if(lastSlash != std::string::npos)
+        path = path.substr(lastSlash + 1);
     return path;
 }
 

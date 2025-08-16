@@ -1,12 +1,22 @@
 #include "Gizmos.h"
+#include "Camera.h"
 
 std::vector<Gizmo> Gizmos::queuedGizmos;
 
 void Gizmos::DrawQueued()
 {
+    Camera* cam = Camera::currentCamera;
+    glm::ivec2 camCenter;
+    if(cam != nullptr)
+    {
+        camCenter = cam->GetCenterPos();
+    }
     for(int i = 0; i < queuedGizmos.size(); i++)
     {
         SDL_FRect rect;
+        queuedGizmos[i].firstArg -= camCenter;
+        if(queuedGizmos[i].drawType == Gizmo::Line)
+            queuedGizmos[i].secondArg -= camCenter;
         rect.x = queuedGizmos[i].firstArg.x;
         rect.y = queuedGizmos[i].firstArg.y;
         rect.w = queuedGizmos[i].secondArg.x;

@@ -11,7 +11,7 @@ Window::Window(std::string title, int width, int height, SDL_WindowFlags windowF
     this->sdlWindow = nullptr;
     this->renderer = nullptr;
     this->title = title;
-    this->windowRect = glm::ivec2(width, height);
+    this->windowSize = glm::ivec2(width, height);
     this->windowFlags = windowFlags;
 
     Input::Initialize();
@@ -29,12 +29,12 @@ bool Window::HandleEvent(SDL_Event* event)
     {
         return true;  //end the program
     }
-    glm::ivec2 newWindowRect = this->windowRect;
+    glm::ivec2 newWindowSize = this->windowSize;
     switch (event->type)
     {
     case SDL_EVENT_WINDOW_RESIZED:
-        newWindowRect = glm::ivec2(event->window.data1, event->window.data2);
-        this->SetWindowRect(newWindowRect);
+        newWindowSize = glm::ivec2(event->window.data1, event->window.data2);
+        this->SetWindowSize(newWindowSize);
         break;
     default:
         Input::OnEvent(event);
@@ -66,19 +66,19 @@ SDL_WindowFlags Window::GetWindowFlags()
     return this->windowFlags;
 }
 
-void Window::SetWindowRect(glm::ivec2 rect)
+void Window::SetWindowSize(glm::ivec2 rect)
 {
-    this->windowRect = rect;
+    this->windowSize = rect;
 }
 
-void Window::SetWindowRect(int width, int height)
+void Window::SetWindowSize(int width, int height)
 {
-    this->windowRect = glm::ivec2(width, height);
+    this->windowSize = glm::ivec2(width, height);
 }
 
-glm::ivec2 Window::GetWindowRect()
+glm::ivec2 Window::GetWindowSize()
 {
-    return this->windowRect;
+    return this->windowSize;
 }
 
 void Window::SetWindowResizable(bool isResizable)

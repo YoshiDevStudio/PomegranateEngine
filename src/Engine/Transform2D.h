@@ -21,5 +21,11 @@ public:
     glm::vec2 globalScale = glm::vec2(1, 1);
     glm::vec2 localScale = glm::vec2(1, 1);
 private:
+    glm::vec2 GetParentPosition();
+    float GetParentRotation();
+    glm::vec2 GetParentScale();
+
     void ApplyTransformations();
+
+    
 };
