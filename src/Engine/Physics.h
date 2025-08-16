@@ -6,6 +6,7 @@
 #include "Collision.h"
 #include "PhysicsBody.h"
 #include "QuadTree.h"
+#include "Ray.h"
 
 class Application;
 
@@ -14,6 +15,7 @@ class DLL_API Physics
 {
 public:
     static void Update();
+    static bool Raycast(Ray& ray, RaycastHit& hitInfo);
 
     static int steps;
     static glm::vec2 gravity;

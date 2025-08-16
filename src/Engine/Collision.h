@@ -10,6 +10,8 @@ class BoxCollision;
 class CircleCollision;
 class Collision;
 class PhysicsBody;
+class Ray;
+struct RaycastHit;
 
 struct DLL_API ContactPoint
 {
@@ -61,12 +63,18 @@ public:
     void OnCollisionStay(Collision* info);
 
     bool CheckCollision(Collision* other, CollisionInfo& collisionInfo);
+    bool CheckRayCollision(const Ray& ray, RaycastHit& hitInfo);
     static bool AABBTest(glm::vec2 fPos, glm::vec2 sPos, glm::vec2 fSize, glm::vec2 sSize);
 
     virtual glm::vec2 GetBroadPhaseAABBSize() = 0;
 
     glm::vec2 GetGlobalPosition();
     PhysicsBody* GetPhysicsBody();
+
+    void SetCollisionLayer(unsigned int collisionLayer);
+    unsigned int GetCollisionLayer();
+    void SetCollisionMask(unsigned int collisionMask);
+    unsigned int GetCollisionMask();
 
     glm::vec2 offset = glm::vec2(0, 0);
     //determines if other collision objects will be able to walk through this collision object
@@ -77,4 +85,10 @@ private:
     bool CheckCollision(BoxCollision* first, BoxCollision* second, CollisionInfo& collisionInfo);
     bool CheckCollision(CircleCollision* first, BoxCollision* second, CollisionInfo& collisionInfo);
     bool CheckCollision(CircleCollision* first, CircleCollision* second, CollisionInfo& collisionInfo);
+
+    bool RayCollision(const Ray& ray, CircleCollision* collision, RaycastHit& hitInfo);
+    bool RayCollision(const Ray& ray, BoxCollision* collision, RaycastHit& hitInfo);
+
+    unsigned int collisionLayer = 0;
+    unsigned int collisionMask = 0;
 };
