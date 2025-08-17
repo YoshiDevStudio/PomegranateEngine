@@ -5,7 +5,7 @@ Camera* Camera::currentCamera = nullptr;
 
 Camera::Camera(bool isCurrent)
 {
-    size = Application::window->GetWindowSize();
+    SetSize(size);
     SetCurrent(isCurrent);
 }
 
@@ -23,6 +23,16 @@ void Camera::SetCurrent(bool current)
         return;
     }
     this->isCurrent = false;
+}
+
+void Camera::SetSize(glm::vec2 size)
+{
+    this->size = size;
+}
+
+glm::vec2 Camera::GetSize()
+{
+    return size;
 }
 
 glm::vec2 Camera::GetCenterPos()

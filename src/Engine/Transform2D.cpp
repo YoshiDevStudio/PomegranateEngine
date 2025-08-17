@@ -1,4 +1,6 @@
 #include "Transform2D.h"
+#include "Application.h"
+#include "Camera.h"
 
 Transform2D::Transform2D()
     : Component()
@@ -10,6 +12,34 @@ void Transform2D::Update()
 {
     Component::Update();
     ApplyTransformations();
+}
+
+glm::vec2 Transform2D::WorldToScreen(glm::vec2 worldPos)
+{
+    Camera* cam = Camera::currentCamera;
+    if(cam != nullptr)
+    {
+        glm::vec2 camSize = cam->GetSize();
+        glm::vec2 windowSize = Application::window->GetWindowSize();
+        
+        worldPos /= (camSize / windowSize);
+        return worldPos + cam->GetCenterPos();
+    }
+    return worldPos;
+}
+
+glm::vec2 Transform2D::ScreenToWorld(glm::vec2 screenPos)
+{
+    Camera* cam = Camera::currentCamera;
+    if(cam != nullptr)
+    {
+        glm::vec2 camSize = cam->GetSize();
+        glm::vec2 windowSize = Application::window->GetWindowSize();
+        
+        screenPos *= (camSize / windowSize);
+        return screenPos + cam->GetCenterPos();
+    }
+    return screenPos;
 }
 
 //recursively gets all parents added positions

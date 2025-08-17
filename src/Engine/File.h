@@ -20,7 +20,7 @@ public:
     static std::vector<Texture2D*> LoadPNGInFolder(std::string folderPath);
     static Texture2D* LoadPNG(std::string filePath);
 
-    static std::vector<Tile> LoadTilemap(std::string filePath, int tileSize);
+    static std::vector<Tile> LoadTiles(std::string filePath, int tileSize);
     static Tile GetTileAtPos(std::string tilemapName, glm::ivec2 position);
     static Animation* LoadAnimation(std::string folderPath);
 

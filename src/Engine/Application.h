@@ -10,12 +10,12 @@ class DLL_API Application
 {
 public:
     Application();
-    virtual ~Application();
+    virtual ~Application() = default;
 
-    virtual void Initialize();
-    virtual void Start();
-    virtual void OnEvent(SDL_Event* event);
-    virtual void Update();
+    virtual void Initialize() {}
+    virtual void Start() {}
+    virtual void OnEvent(SDL_Event* event) {}
+    virtual void Update() {}
     
     //Should only be called by Engine in EntryPoint.h
     void Run();

@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "Camera.h"
 
 Window* Application::window;
 Entity* Application::Level;
@@ -7,31 +8,6 @@ Application::Application()
 {
     window = nullptr;
     Level = new Entity("Level");
-}
-
-Application::~Application()
-{
-
-}
-
-void Application::Initialize()
-{
-    
-}
-
-void Application::Start()
-{
-    
-}
-
-void Application::OnEvent(SDL_Event* event)
-{
-
-}
-
-void Application::Update()
-{
-
 }
 
 void Application::Run()
@@ -43,8 +19,8 @@ void Application::Run()
         SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
         return;
     }
-    glm::ivec2 windowRect = window->GetWindowSize();
-    if (!SDL_CreateWindowAndRenderer(window->GetTitle().c_str(), windowRect.x, windowRect.y, window->GetWindowFlags(), &window->sdlWindow, &window->renderer))
+    glm::ivec2 windowSize = window->GetWindowSize();
+    if (!SDL_CreateWindowAndRenderer(window->GetTitle().c_str(), windowSize.x, windowSize.y, window->GetWindowFlags(), &window->sdlWindow, &window->renderer))
     {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         return;
@@ -62,12 +38,14 @@ void Application::Run()
         this->OnEvent(e);
         shouldQuit = window->HandleEvent(e);
 
-        const double now = ((double)SDL_GetTicks()) / 1000.0;  /* convert from milliseconds to seconds. */
-        /* choose the color for the frame we will draw. The sine wave trick makes it fade between colors smoothly. */
-        const float red = (float) (0.5 + 0.5 * SDL_sin(now));
-        const float green = (float) (0.5 + 0.5 * SDL_sin(now + SDL_PI_D * 2 / 3));
-        const float blue = (float) (0.5 + 0.5 * SDL_sin(now + SDL_PI_D * 4 / 3));
-        SDL_SetRenderDrawColorFloat(window->renderer, red, green, blue, SDL_ALPHA_OPAQUE_FLOAT);  /* new color, full alpha. */
+        Camera* cam = Camera::currentCamera;
+        if(cam != nullptr)
+        {
+            SDL_SetRenderLogicalPresentation(window->renderer, cam->GetSize().x, cam->GetSize().y, SDL_LOGICAL_PRESENTATION_STRETCH);
+        }
+
+        glm::vec3 clearColor = window->clearColor;
+        SDL_SetRenderDrawColorFloat(window->renderer, clearColor.r, clearColor.g, clearColor.b, SDL_ALPHA_OPAQUE_FLOAT);
 
         SDL_RenderClear(window->renderer);
 
@@ -78,9 +56,6 @@ void Application::Run()
         Physics::Update();
 
         RenderManager::Draw(window->renderer);
-
-        SDL_SetRenderDrawColorFloat(window->renderer, 1.0, 1.0, 1.0, 1.0);
-        SDL_RenderDebugText(window->renderer, 640 / 2, 480 / 2, std::to_string(Time::deltaTime).append("ms").c_str());
 
     #ifdef _DEBUG
         Gizmos::DrawQueued();

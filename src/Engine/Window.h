@@ -2,6 +2,7 @@
 
 #include <SDL3/SDL.h>
 #include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 
 #include "Core.h"
 #include "Input.h"
@@ -30,6 +31,8 @@ public:
 
     static SDL_Window* sdlWindow;
     static SDL_Renderer* renderer;
+
+    glm::vec3 clearColor = glm::vec3(0.5f);
 private:
     std::string title;
 

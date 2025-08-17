@@ -8,7 +8,6 @@ void RenderManager::Queue(QueuedDraw* drawCall)
     drawCalls.push_back(drawCall);
 }
 
-//TODO: Implement Frustum culling
 void RenderManager::Draw(SDL_Renderer* renderer)
 {
     DescendingSort();

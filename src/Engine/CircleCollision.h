@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DLL_Build.h"
+#include "Core.h"
 #include "Collision.h"
 #ifdef _DEBUG
     #include "Gizmos.h"

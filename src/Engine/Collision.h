@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <glm/glm.hpp>
 
-#include "DLL_Build.h"
+#include "Core.h"
 #include "Transform2D.h"
 
 class BoxCollision;

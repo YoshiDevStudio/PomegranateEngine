@@ -1,5 +1,6 @@
 #include "Input.h"
 #include "Camera.h"
+#include "Application.h"
 
 Event<void, SDL_Event*>* Input::OnMouseWheelEvent;
 //Constructor
@@ -48,6 +49,10 @@ glm::vec2 Input::GetWorldMousePosition()
     Camera* cam = Camera::currentCamera;
     if(cam != nullptr)
     {
+        glm::vec2 camSize = cam->GetSize();
+        glm::vec2 windowSize = Application::window->GetWindowSize();
+        
+        screenPos *= (camSize / windowSize);
         return screenPos + cam->GetCenterPos();
     }
     return screenPos;

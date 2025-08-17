@@ -67,7 +67,7 @@ Texture2D* File::LoadPNG(std::string filePath)
 }
 
 //Loads PNG image and splits it up into Tiles of size: tileSize
-std::vector<Tile> File::LoadTilemap(std::string filePath, int tileSize)
+std::vector<Tile> File::LoadTiles(std::string filePath, int tileSize)
 {
     std::vector<Tile> tiles;
     Texture2D* tilemap = LoadPNG(filePath);
