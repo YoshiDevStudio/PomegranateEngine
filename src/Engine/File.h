@@ -17,12 +17,12 @@
 class DLL_API File
 {
 public:
-    static std::vector<Texture2D*> LoadPNGInFolder(std::string folderPath);
-    static Texture2D* LoadPNG(std::string filePath);
+    static std::vector<Texture2D*> LoadPNGInFolder(std::string folderPath, SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
+    static Texture2D* LoadPNG(std::string filePath, SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
 
-    static std::vector<Tile> LoadTiles(std::string filePath, int tileSize);
+    static std::vector<Tile> LoadTiles(std::string filePath, int tileSize, SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
     static Tile GetTileAtPos(std::string tilemapName, glm::ivec2 position);
-    static Animation* LoadAnimation(std::string folderPath);
+    static Animation* LoadAnimation(std::string folderPath, SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
 
     static void UnloadTexture(std::string textureName);
     static void UnloadTexture(Texture2D* texture);

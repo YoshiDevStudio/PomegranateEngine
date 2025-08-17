@@ -6,6 +6,7 @@
 
 #include "Core.h"
 #include "Input.h"
+#include "Time_Utils.h"
 
 class DLL_API Window
 {

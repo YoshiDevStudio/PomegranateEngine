@@ -2,6 +2,7 @@
 
 #include "Core.h"
 #include "SDL3/SDL.h"
+#include <vector>
 
 struct DLL_API QueuedDraw
 {

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Core.h"
+#include <string>
+#include <vector>
 
 class Component;
 class Transform2D;

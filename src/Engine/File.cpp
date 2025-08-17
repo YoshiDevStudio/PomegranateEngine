@@ -4,7 +4,7 @@ std::map<std::string, Texture2D*> File::loadedTextures;
 std::map<std::string, std::vector<Tile>> File::loadedTiles;
 
 //Loads all PNGs in path and stores them in File::loadedTextures
-std::vector<Texture2D*> File::LoadPNGInFolder(std::string folderPath)
+std::vector<Texture2D*> File::LoadPNGInFolder(std::string folderPath, SDL_ScaleMode scaleMode)
 {
     std::vector<Texture2D*> textures;
     try
@@ -14,7 +14,7 @@ std::vector<Texture2D*> File::LoadPNGInFolder(std::string folderPath)
             std::string outFileName = entry.path().string();
             if(outFileName.ends_with(".png"))
             {
-                textures.push_back(LoadPNG(outFileName));
+                textures.push_back(LoadPNG(outFileName, scaleMode));
             }
         }
         return textures;
@@ -27,7 +27,7 @@ std::vector<Texture2D*> File::LoadPNGInFolder(std::string folderPath)
 }
 
 //Loads PNG in path and stores it in File::loadedTextures
-Texture2D* File::LoadPNG(std::string filePath)
+Texture2D* File::LoadPNG(std::string filePath, SDL_ScaleMode scaleMode)
 {
     SDL_IOStream* fs = SDL_IOFromFile(filePath.c_str(), "r");
     if(fs == nullptr)
@@ -61,16 +61,17 @@ Texture2D* File::LoadPNG(std::string filePath)
     filePath = filePath.substr(filePath.find_last_of("\\") + 1);
     //remove file extension
     filePath.erase(filePath.end() - 4, filePath.end());
+    SDL_SetTextureScaleMode(tex2D->texture, scaleMode);
     loadedTextures.emplace(filePath, tex2D);
     LOG_VERBOSE("Loaded Texture: " + filePath);
     return tex2D;
 }
 
 //Loads PNG image and splits it up into Tiles of size: tileSize
-std::vector<Tile> File::LoadTiles(std::string filePath, int tileSize)
+std::vector<Tile> File::LoadTiles(std::string filePath, int tileSize, SDL_ScaleMode scaleMode)
 {
     std::vector<Tile> tiles;
-    Texture2D* tilemap = LoadPNG(filePath);
+    Texture2D* tilemap = LoadPNG(filePath, scaleMode);
     for(int y = 0; y < tilemap->size.y; y += tileSize)
     {
         for(int x = 0; x < tilemap->size.x; x += tileSize)
@@ -94,9 +95,9 @@ Tile File::GetTileAtPos(std::string tilemapName, glm::ivec2 position)
 //Loads all images in folder and converts them into an animation
 //Images are loaded in alphabetical order
 //Images must be .png
-Animation* File::LoadAnimation(std::string folderPath)
+Animation* File::LoadAnimation(std::string folderPath, SDL_ScaleMode scaleMode)
 {
-    std::vector<Texture2D*> textures = LoadPNGInFolder(folderPath);
+    std::vector<Texture2D*> textures = LoadPNGInFolder(folderPath, scaleMode);
     Animation* animation = new Animation();
     for(int i = 0; i < textures.size(); i++)
     {

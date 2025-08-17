@@ -22,9 +22,7 @@ void RenderManager::Draw(SDL_Renderer* renderer)
         Camera* cam = Camera::currentCamera;
         if(cam != nullptr)
         {
-            
-            //has to be ivec2 otherwise sprites using the srcRect fails to correctly clip the area it is set to
-            glm::ivec2 camCenter = cam->GetCenterPos();
+            glm::vec2 camCenter = cam->GetCenterPos();
             draw->dstRect.x -= camCenter.x;
             draw->dstRect.y -= camCenter.y;
         }
