@@ -32,6 +32,8 @@ bool Physics::Raycast(Ray& ray, RaycastHit& hitInfo)
     for(int i = 0; i < collisionObjects.size(); i++)
     {
         hit = collisionObjects[i]->CheckRayCollision(ray, hitInfo);
+        if(hit)
+            break;
     }
 #ifdef _DEBUG
     if(hit == true)
@@ -41,7 +43,7 @@ bool Physics::Raycast(Ray& ray, RaycastHit& hitInfo)
         Gizmos::DrawRect(hitInfo.hitPosition - size * 0.5f, size, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
     }
     else
-        Gizmos::DrawLine(ray.GetPosition(), ray.GetPosition() + ray.GetDirection() * 1000.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+        Gizmos::DrawLine(ray.GetPosition(), ray.GetPosition() + ray.GetDirection() * 10000.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 #endif
     return hit;
 }

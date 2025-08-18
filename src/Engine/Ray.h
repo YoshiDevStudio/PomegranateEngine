@@ -21,19 +21,19 @@ struct DLL_API RaycastHit
 class DLL_API Ray
 {
 public:
-    Ray(glm::vec2 position, glm::vec2 direction, unsigned int layer = 0)
+    Ray(glm::vec2 position, glm::vec2 direction, unsigned int mask = 0u)
     {
         this->position = position;
         this->direction = direction;
-        this->layer = layer;
+        this->mask = mask;
     }
     ~Ray() = default;
 
     glm::vec2 GetPosition() const { return position; }
     glm::vec2 GetDirection() const { return glm::normalize(direction); }
-    unsigned int GetLayer() const { return layer; }
+    unsigned int GetMask() const { return mask; }
 private:
     glm::vec2 position;
     glm::vec2 direction;
-    unsigned int layer = 0;
+    unsigned int mask;
 };

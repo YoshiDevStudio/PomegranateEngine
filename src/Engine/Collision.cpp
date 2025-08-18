@@ -24,7 +24,7 @@ bool Collision::CheckCollision(Collision* other, CollisionInfo& collisionInfo)
 
 bool Collision::CheckRayCollision(const Ray& ray, RaycastHit& hitInfo)
 {
-    if(((1 << ray.GetLayer()) & (1 << this->GetCollisionMask())))
+    if((1 << ray.GetMask() &  1 << this->GetCollisionLayer()))
     {
         switch(this->shape)
         {
@@ -77,9 +77,8 @@ unsigned int Collision::GetCollisionMask()
 
 bool Collision::AABBTest(glm::vec2 fPos, glm::vec2 sPos, glm::vec2 fSize, glm::vec2 sSize)
 {
-        //Use AABB Collisions
-    bool intersection = fPos.x > (sPos.x + sSize.x) || sPos.x > (fPos.x + fSize.x)
-        || fPos.y > (sPos.y + sSize.y) || sPos.y > (fPos.y + fSize.y);
+    bool intersection = (fPos.x - fSize.x) > (sPos.x + sSize.x) || (sPos.x - sSize.x) > (fPos.x + fSize.x)
+        || (fPos.y - fSize.y) > (sPos.y + sSize.y) || (sPos.y - sSize.y) > (fPos.y + fSize.y);
     
     return !intersection;
 }
@@ -140,7 +139,7 @@ bool Collision::CheckCollision(BoxCollision* first, BoxCollision* second, Collis
     glm::vec2 sMin = sPos - sHalfExtents;
     
         //Use AABB Collisions
-    bool isColliding = AABBTest(fPos, sPos, first->boxExtents, second->boxExtents);
+    bool isColliding = AABBTest(fPos, sPos, fHalfExtents, sHalfExtents);
     
     
     if(isColliding)
@@ -176,7 +175,7 @@ bool Collision::CheckCollision(BoxCollision* first, BoxCollision* second, Collis
         collisionInfo.second = second;
         return true;
     }
-    return isColliding;
+    return false;
 }
 
 bool Collision::CheckCollision(CircleCollision* first, BoxCollision* second, CollisionInfo& collisionInfo)
@@ -259,10 +258,17 @@ bool Collision::RayCollision(const Ray& ray, CircleCollision* collision, Raycast
     glm::vec2 dir = (cPos - ray.GetPosition());
     //a
     float cProj = glm::dot(dir, ray.GetDirection());
-    if(cProj < 0.0f)
-        return false;
+
+    float rayDifference = glm::distance(cPos, ray.GetPosition());
+    //if rayPos is outside of circle
+    if(rayDifference > collision->radius)
+    {
+        if(cProj < 0.0f)
+            return false;
+    }
     
     glm::vec2 point = ray.GetPosition() + (ray.GetDirection() * cProj);
+    //b
     float cDst = glm::length((cPos - point));
 
     if(cDst > collision->radius)
@@ -272,7 +278,12 @@ bool Collision::RayCollision(const Ray& ray, CircleCollision* collision, Raycast
 
     //f
     float offset = sqrt((collision->radius * collision->radius) - (cDst * cDst));
-    hitInfo.rayDistance = (cProj - offset);
+
+    //if rayPos is outside of circle
+    if(rayDifference > collision->radius)
+        hitInfo.rayDistance = (cProj - offset);
+    else
+        hitInfo.rayDistance = (cProj + offset);
     hitInfo.hitPosition = ray.GetPosition() + (ray.GetDirection() * hitInfo.rayDistance);
     hitInfo.object = collision;
     return true;
@@ -302,15 +313,22 @@ bool Collision::RayCollision(const Ray& ray, BoxCollision* collision, RaycastHit
 
     if(tMax >= tMin)
     {
-        float bestT = std::min(tMin, tMax);
-        if(bestT < 0.0f)
-            return false;
+        //Decide if box is getting hit from outside or inside
+        float bestTOuter = std::min(tMin, tMax);
+        float bestTInner = std::max(tMin, tMax);
+        float bestT = bestTOuter;
+        if(bestTOuter < 0.0f)
+        {
+            if(bestTInner < 0.0f)
+                return false;
+            bestT = bestTInner;
+        }
         glm::vec2 intersection = rayPos + (ray.GetDirection() * bestT);
 
         hitInfo.hitPosition = intersection;
         hitInfo.rayDistance = bestT;
         hitInfo.object = collision;
-        
+
         return true;
     }
 
