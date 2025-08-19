@@ -44,7 +44,8 @@ private:
             std::vector<T*> entityComponents = children[i]->GetComponents<T>();
             for(int j = 0; j < entityComponents.size(); j++)
             {
-                components.push_back(entityComponents[j]);
+                if(entityComponents[j]->enabled)
+                    components.push_back(entityComponents[j]);
             }
 
             AddComponentObjects(children[i], components);

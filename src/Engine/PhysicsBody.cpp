@@ -32,7 +32,7 @@ void PhysicsBody::SetMass(float mass)
 {
     if(mass == 0)
     {
-        LOG_ERROR("mass cannot be 0");
+        LOG_ERROR("mass cannot be 0 on PhysicsBody, Consider using a StaticBody");
         return;
     }
     this->inverseMass = 1.0f / mass;

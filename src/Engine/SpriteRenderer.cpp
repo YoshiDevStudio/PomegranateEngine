@@ -26,7 +26,7 @@ void SpriteRenderer::Update()
 
 void SpriteRenderer::Draw()
 {
-    if(entity == nullptr || tex2D == nullptr)
+    if(entity == nullptr || tex2D == nullptr || tex2D->texture == nullptr)
         return;
 
     SDL_FRect dstRect;

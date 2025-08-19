@@ -59,7 +59,8 @@ void Entity::Update()
 {
     for(int i = 0; i < components.size(); i++)
     {
-        components[i]->Update();
+        if(components[i]->enabled)
+            components[i]->Update();
     }
     for(int i = 0; i < children.size(); i++)
     {

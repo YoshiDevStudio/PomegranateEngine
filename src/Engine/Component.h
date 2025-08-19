@@ -2,6 +2,7 @@
 
 #include "Entity.h"
 
+//if you wish to use the Component class, you should include Transform2D.h before Component.h
 class DLL_API Component
 {
 public:
@@ -34,4 +35,6 @@ public:
     }
 
     Entity* entity = nullptr;
+
+    bool enabled = true;
 };

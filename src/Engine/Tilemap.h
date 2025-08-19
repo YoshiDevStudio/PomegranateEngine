@@ -1,6 +1,6 @@
 #pragma once
 
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include "Transform2D.h"
 #include "Tile.h"
@@ -27,5 +27,5 @@ private:
     void DrawTilemap();
     void DrawTile(glm::vec2 position, Tile tile);
     //std::string is position stored as x,y and Tile is tile displayed at that position
-    std::map<std::string, Tile> tilemap;
+    std::unordered_map<std::string, Tile> tilemap;
 };

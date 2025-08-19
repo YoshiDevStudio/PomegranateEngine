@@ -1,10 +1,16 @@
 #include "File.h"
 
-std::map<std::string, Texture2D*> File::loadedTextures;
-std::map<std::string, std::vector<Tile>> File::loadedTiles;
+std::unordered_map<std::string, Texture2D*> File::loadedTextures;
+std::unordered_map<std::string, std::vector<Tile>> File::loadedTiles;
 
-//Loads all PNGs in path and stores them in File::loadedTextures
-std::vector<Texture2D*> File::LoadPNGInFolder(std::string folderPath, SDL_ScaleMode scaleMode)
+std::unordered_map<std::string, int> File::imgFormats = 
+{
+    {".png", 1},
+    {".jpg", 2},
+};
+
+//Loads all Images in path and stores them in File::loadedTextures
+std::vector<Texture2D*> File::LoadIMGsInFolder(std::string folderPath, SDL_ScaleMode scaleMode)
 {
     std::vector<Texture2D*> textures;
     try
@@ -12,10 +18,9 @@ std::vector<Texture2D*> File::LoadPNGInFolder(std::string folderPath, SDL_ScaleM
         for(const auto& entry : std::filesystem::directory_iterator(std::filesystem::current_path().string() + "\\" + folderPath))
         {
             std::string outFileName = entry.path().string();
-            if(outFileName.ends_with(".png"))
-            {
-                textures.push_back(LoadPNG(outFileName, scaleMode));
-            }
+            Texture2D* tex2D = LoadIMG(outFileName, scaleMode);
+            if(tex2D != nullptr)
+                textures.push_back(tex2D);
         }
         return textures;
     }
@@ -26,44 +31,25 @@ std::vector<Texture2D*> File::LoadPNGInFolder(std::string folderPath, SDL_ScaleM
     return textures;
 }
 
-//Loads PNG in path and stores it in File::loadedTextures
-Texture2D* File::LoadPNG(std::string filePath, SDL_ScaleMode scaleMode)
+//Loads Image at filePath and stores it in File::loadedTextures
+Texture2D* File::LoadIMG(std::string filePath, SDL_ScaleMode scaleMode)
 {
-    SDL_IOStream* fs = SDL_IOFromFile(filePath.c_str(), "r");
-    if(fs == nullptr)
+    std::string fileExtension = GetFileExtension(filePath);
+    Texture2D* tex2D = nullptr;
+    switch(imgFormats[fileExtension])
     {
-        LOG_ERROR("Could not open file: " + filePath);
-        return nullptr;
+        case 1:
+        //.png
+            tex2D = LoadPNG(filePath, scaleMode);
+            break;
+        case 2:
+        //.jpg
+            tex2D = LoadJPG(filePath, scaleMode);
+            break;
+        default:
+            LOG_ERROR("File type: " + fileExtension + " not supported");
+            return nullptr;
     }
-    SDL_Surface* surface = IMG_LoadPNG_IO(fs);
-    if(surface == nullptr)
-    {
-        LOG_ERROR("Couldn't load bitmap at path: " + filePath);
-        SDL_CloseIO(fs);
-        SDL_DestroySurface(surface);
-        return nullptr;
-    }
-    SDL_CloseIO(fs);
-
-    Texture2D* tex2D = new Texture2D(surface->w, surface->h);
-    if(Window::renderer == nullptr)
-        LOG_ERROR("Renderer is nullptr");
-    tex2D->texture = SDL_CreateTextureFromSurface(Window::renderer, surface);
-    if(tex2D->texture == nullptr)
-    {
-        LOG_ERROR("Couldn't create static texture: " + std::string(SDL_GetError()));
-        return nullptr;
-    }
-
-    SDL_DestroySurface(surface);
-
-    //remove directory path, only filename
-    filePath = filePath.substr(filePath.find_last_of("\\") + 1);
-    //remove file extension
-    filePath.erase(filePath.end() - 4, filePath.end());
-    SDL_SetTextureScaleMode(tex2D->texture, scaleMode);
-    loadedTextures.emplace(filePath, tex2D);
-    LOG_VERBOSE("Loaded Texture: " + filePath);
     return tex2D;
 }
 
@@ -71,7 +57,7 @@ Texture2D* File::LoadPNG(std::string filePath, SDL_ScaleMode scaleMode)
 std::vector<Tile> File::LoadTiles(std::string filePath, int tileSize, SDL_ScaleMode scaleMode)
 {
     std::vector<Tile> tiles;
-    Texture2D* tilemap = LoadPNG(filePath, scaleMode);
+    Texture2D* tilemap = LoadIMG(filePath, scaleMode);
     for(int y = 0; y < tilemap->size.y; y += tileSize)
     {
         for(int x = 0; x < tilemap->size.x; x += tileSize)
@@ -97,7 +83,7 @@ Tile File::GetTileAtPos(std::string tilemapName, glm::ivec2 position)
 //Images must be .png
 Animation* File::LoadAnimation(std::string folderPath, SDL_ScaleMode scaleMode)
 {
-    std::vector<Texture2D*> textures = LoadPNGInFolder(folderPath, scaleMode);
+    std::vector<Texture2D*> textures = LoadIMGsInFolder(folderPath, scaleMode);
     Animation* animation = new Animation();
     for(int i = 0; i < textures.size(); i++)
     {
@@ -108,14 +94,8 @@ Animation* File::LoadAnimation(std::string folderPath, SDL_ScaleMode scaleMode)
 
 void UnloadTexture(std::string textureName)
 {
-    for(const auto& pair : File::loadedTextures)
-    {
-        if(textureName == pair.first)
-        {
-            delete pair.second;
-            File::loadedTextures.erase(textureName);
-        }
-    }
+    delete File::loadedTextures[textureName];
+    File::loadedTextures.erase(textureName);
 }
 
 void UnloadTexture(Texture2D* texture)
@@ -146,6 +126,16 @@ std::string File::GetFileName(std::string absolutePath)
     return absolutePath;
 }
 
+std::string File::GetFileExtension(std::string path)
+{
+    int lastDot = path.find_last_of(".");
+    if(lastDot != std::string::npos)
+    {
+        return path.substr(lastDot);
+    }
+    return "";
+}
+
 std::string File::RemoveFileDirectory(std::string path)
 {
     int lastSlash = path.find_last_of("\\");
@@ -164,4 +154,69 @@ std::string File::RemoveFileExtension(std::string path)
     if(lastDot != std::string::npos)
         path.erase(path.begin() + path.find_last_of("."), path.end());
     return path;
+}
+
+//Loads PNG in path and stores it in File::loadedTextures
+Texture2D* File::LoadPNG(std::string filePath, SDL_ScaleMode scaleMode)
+{
+    SDL_IOStream* fs = SDL_IOFromFile(filePath.c_str(), "r");
+    if(fs == nullptr)
+    {
+        LOG_ERROR("Could not open file: " + filePath);
+        return nullptr;
+    }
+    SDL_Surface* surface = IMG_LoadPNG_IO(fs);
+    if(surface == nullptr)
+    {
+        LOG_ERROR("Couldn't load bitmap at path: " + filePath);
+        SDL_CloseIO(fs);
+        SDL_DestroySurface(surface);
+        return nullptr;
+    }
+    SDL_CloseIO(fs);
+
+    return LoadSurface(surface, filePath, scaleMode);
+}
+
+Texture2D* File::LoadJPG(std::string filePath, SDL_ScaleMode scaleMode)
+{
+    SDL_IOStream* fs = SDL_IOFromFile(filePath.c_str(), "r");
+    if(fs == nullptr)
+    {
+        LOG_ERROR("Could not open file: " + filePath);
+        return nullptr;
+    }
+    SDL_Surface* surface = IMG_LoadJPG_IO(fs);
+    if(surface == nullptr)
+    {
+        LOG_ERROR("Couldn't load bitmap at path: " + filePath);
+        SDL_CloseIO(fs);
+        SDL_DestroySurface(surface);
+        return nullptr;
+    }
+    SDL_CloseIO(fs);
+    return LoadSurface(surface, filePath, scaleMode);
+}
+
+Texture2D* File::LoadSurface(SDL_Surface* surface, std::string filePath, SDL_ScaleMode scaleMode)
+{
+    Texture2D* tex2D = new Texture2D(surface->w, surface->h);
+    if(Window::renderer == nullptr)
+        LOG_ERROR("Renderer is nullptr");
+    tex2D->texture = SDL_CreateTextureFromSurface(Window::renderer, surface);
+    if(tex2D->texture == nullptr || tex2D == nullptr)
+    {
+        LOG_ERROR("Couldn't create static texture: " + std::string(SDL_GetError()));
+        return nullptr;
+    }
+
+    SDL_DestroySurface(surface);
+
+    //remove directory path, only filename
+    filePath = filePath.substr(filePath.find_last_of("\\") + 1);
+    //remove file extension
+    filePath.erase(filePath.end() - 4, filePath.end());
+    SDL_SetTextureScaleMode(tex2D->texture, scaleMode);
+    loadedTextures.emplace(filePath, tex2D);
+    return tex2D;
 }
