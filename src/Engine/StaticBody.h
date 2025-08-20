@@ -6,7 +6,13 @@
 class DLL_API StaticBody : public PhysicsBody
 {
 public:
-    StaticBody();
+    StaticBody()
+    {
+        this->inverseMass = 0.0f;
+    }
 
-    virtual float GetInverseMass() override;
+    virtual float GetInverseMass() override
+    {
+        return 0.0f;
+    }
 };

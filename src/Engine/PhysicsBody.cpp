@@ -48,6 +48,11 @@ void PhysicsBody::SetForce(glm::vec2 force)
     this->force = force;
 }
 
+void PhysicsBody::SetLinearDamping(float linearDamping)
+{
+    this->linearDamping = linearDamping;
+}
+
 float PhysicsBody::GetInverseMass()
 {
     return inverseMass;
@@ -61,5 +66,10 @@ glm::vec2 PhysicsBody::GetLinearVelocity()
 glm::vec2 PhysicsBody::GetForce()
 {
     return this->force;
+}
+
+float PhysicsBody::GetLinearDamping()
+{
+    return this->linearDamping;
 }
 

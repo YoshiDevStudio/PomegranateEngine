@@ -8,13 +8,15 @@
 struct DLL_API RaycastHit
 {
     //object that was hit
-    Collision* object; 
+    Collision* object = nullptr; 
     //hitPosition is in World Space
     glm::vec2 hitPosition;
     float rayDistance;
+    //if RaycastHit hit something this will be true
+    bool hit = false;
     RaycastHit()
     {
-        rayDistance = -1.0f;
+        rayDistance = FLT_MAX;
     }
 };
 

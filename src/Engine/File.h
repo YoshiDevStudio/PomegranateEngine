@@ -20,8 +20,8 @@ public:
     static std::vector<Texture2D*> LoadIMGsInFolder(std::string folderPath, SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
     static Texture2D* LoadIMG(std::string filePath, SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
 
-    static std::vector<Tile> LoadTiles(std::string filePath, int tileSize, SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
-    static Tile GetTileAtPos(std::string tilemapName, glm::ivec2 position);
+    static std::vector<Tile*> LoadTiles(std::string filePath, int tileSize, SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
+    static Tile* GetTileAtPos(std::string tilemapName, glm::ivec2 position);
     static Animation* LoadAnimation(std::string folderPath, SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
 
     static void UnloadTexture(std::string textureName);
@@ -36,7 +36,7 @@ public:
     //Here is where all loaded textures are stored, you can get them by inputting the filename without its extension
     static std::unordered_map<std::string, Texture2D*> loadedTextures;
     //All loaded tiles are stored here, first is the name of the tilemap you are accessing, second is the tiles loaded from the given tilemap
-    static std::unordered_map<std::string, std::vector<Tile>> loadedTiles;
+    static std::unordered_map<std::string, std::vector<Tile*>> loadedTiles;
 private:
     static Texture2D* LoadPNG(std::string filePath, SDL_ScaleMode scaleMode);
     static Texture2D* LoadJPG(std::string filePath, SDL_ScaleMode scaleMode);

@@ -46,6 +46,7 @@ struct DLL_API CollisionInfo
 
 //Collision sizes are unaffected by Entitys scale
 //!!FIXME: isTrigger is unused
+//!!FIXME: if colliding with multiple objects, one will take precedence while the other collisions can be walked through
 class DLL_API Collision : public Component
 {
 public:
@@ -59,6 +60,7 @@ public:
     {
 
     }
+    ~Collision() = default;
     virtual void OnAttach() override;
 
     void OnCollisionStay(Collision* info);

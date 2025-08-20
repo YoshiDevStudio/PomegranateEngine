@@ -17,6 +17,8 @@ public:
     
     ~Entity();
 
+    void Destroy();
+
     virtual void Initialize();
     virtual void Start();
     virtual void Update();

@@ -279,14 +279,21 @@ bool Collision::RayCollision(const Ray& ray, CircleCollision* collision, Raycast
     //f
     float offset = sqrt((collision->radius * collision->radius) - (cDst * cDst));
 
+    float rayDst;
     //if rayPos is outside of circle
     if(rayDifference > collision->radius)
-        hitInfo.rayDistance = (cProj - offset);
+        rayDst = (cProj - offset);
     else
-        hitInfo.rayDistance = (cProj + offset);
-    hitInfo.hitPosition = ray.GetPosition() + (ray.GetDirection() * hitInfo.rayDistance);
-    hitInfo.object = collision;
-    return true;
+        rayDst = (cProj + offset);
+    if(rayDst < hitInfo.rayDistance)
+    {
+        hitInfo.rayDistance = rayDst;
+        hitInfo.hitPosition = ray.GetPosition() + (ray.GetDirection() * hitInfo.rayDistance);
+        hitInfo.object = collision;
+        hitInfo.hit = true;
+        return true;
+    }
+    return false;
 }
 
 bool Collision::RayCollision(const Ray& ray, BoxCollision* collision, RaycastHit& hitInfo)
@@ -325,11 +332,14 @@ bool Collision::RayCollision(const Ray& ray, BoxCollision* collision, RaycastHit
         }
         glm::vec2 intersection = rayPos + (ray.GetDirection() * bestT);
 
-        hitInfo.hitPosition = intersection;
-        hitInfo.rayDistance = bestT;
-        hitInfo.object = collision;
-
-        return true;
+        if(bestT < hitInfo.rayDistance)
+        {
+            hitInfo.hitPosition = intersection;
+            hitInfo.rayDistance = bestT;
+            hitInfo.object = collision;
+            hitInfo.hit = true;
+            return true;
+        }
     }
 
     return false;

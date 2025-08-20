@@ -9,7 +9,6 @@ std::set<CollisionInfo> Physics::broadPhaseCollisions;
 
 void Physics::Update()
 {
-    IntegrateAcceleration();
     for(int i = 0; i < steps; i++)
     {
         if(useQuadTrees)
@@ -19,7 +18,8 @@ void Physics::Update()
         }
         else
             DetectCollisions();
-            
+
+        IntegrateAcceleration();
         IntegrateVelocity();
     }
     ClearForces();
@@ -28,15 +28,12 @@ void Physics::Update()
 bool Physics::Raycast(Ray& ray, RaycastHit& hitInfo)
 {
     std::vector<Collision*> collisionObjects = Application::GetAllComponentsOfType<Collision>();
-    bool hit = false;
     for(int i = 0; i < collisionObjects.size(); i++)
     {
-        hit = collisionObjects[i]->CheckRayCollision(ray, hitInfo);
-        if(hit)
-            break;
+        collisionObjects[i]->CheckRayCollision(ray, hitInfo);
     }
 #ifdef _DEBUG
-    if(hit == true)
+    if(hitInfo.hit == true)
     {
         Gizmos::DrawLine(ray.GetPosition(), hitInfo.hitPosition, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
         const glm::vec2 size = glm::vec2(10.0f, 10.0f);
@@ -45,7 +42,7 @@ bool Physics::Raycast(Ray& ray, RaycastHit& hitInfo)
     else
         Gizmos::DrawLine(ray.GetPosition(), ray.GetPosition() + ray.GetDirection() * 10000.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 #endif
-    return hit;
+    return hitInfo.hit;
 }
 
 void Physics::BroadPhase()
@@ -128,10 +125,8 @@ void Physics::ImpulseResolveCollision(Collision* first, Collision* second, Conta
     if(totalMass == 0)
         return;
         
-    if(fBody->GetInverseMass() != 0)
-        fTrans->localPosition = fTrans->globalPosition - (p.normal * p.penetration * (fBody->GetInverseMass() / totalMass));
-    if(sBody->GetInverseMass() != 0)
-        sTrans->localPosition = sTrans->globalPosition + (p.normal * p.penetration * (sBody->GetInverseMass() / totalMass));
+    fTrans->localPosition = fTrans->globalPosition - (p.normal * p.penetration * (fBody->GetInverseMass() / totalMass));
+    sTrans->localPosition = sTrans->globalPosition + (p.normal * p.penetration * (sBody->GetInverseMass() / totalMass));
 
     glm::vec2 fFullVelocity = fBody->GetLinearVelocity();
     glm::vec2 sFullVelocity = sBody->GetLinearVelocity();
@@ -177,9 +172,6 @@ void Physics::IntegrateAcceleration()
 
 void Physics::IntegrateVelocity()
 {
-    float dampingFactor = 1.0f - 0.95f;
-    float frameDamping = powf(dampingFactor, Time::deltaTime);
-
     std::vector<PhysicsBody*> bodies = Application::GetAllComponentsOfType<PhysicsBody>();
     for(int i = 0; i < bodies.size(); i++)
     {
@@ -194,6 +186,7 @@ void Physics::IntegrateVelocity()
         transform->localPosition += linearVelocity * Time::deltaTime;
 
         //Linear Damping
+        float frameDamping = powf(body->GetLinearDamping(), Time::deltaTime);
         linearVelocity *= frameDamping;
         body->SetLinearVelocity(linearVelocity);
 

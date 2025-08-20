@@ -15,6 +15,7 @@ public:
         this->offset = offset;
         this->shape = ShapeType::Box;
     }
+    ~BoxCollision() = default;
 #ifdef _DEBUG
     virtual void Update() override
     {

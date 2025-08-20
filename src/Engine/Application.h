@@ -38,7 +38,7 @@ private:
     template <typename T>
     static void AddComponentObjects(Entity* parent, std::vector<T*>& components)
     {
-        std::vector children = parent->GetChildren();
+        std::vector<Entity*> children = parent->GetChildren();
         for(int i = 0; i < children.size(); i++)
         {
             std::vector<T*> entityComponents = children[i]->GetComponents<T>();

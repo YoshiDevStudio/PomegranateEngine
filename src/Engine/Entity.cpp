@@ -23,16 +23,23 @@ Entity::Entity(std::string name, Component* component)
 
 Entity::~Entity()
 {
+    Destroy();
+}
+
+void Entity::Destroy()
+{
     //Destroy all children
-    for(int i = 0; i < children.size(); i++)
+    for(Entity* child : children)
     {
-        delete children[i];
+        delete child;
     }
     //Destroy all components
-    for(int i = 0; i < components.size(); i++)
+    for(Component* component : components)
     {
-        delete components[i];
+        delete component;
     }
+    if(parent != nullptr)
+        parent->RemoveChild(this);
 }
 
 void Entity::Initialize()
@@ -48,6 +55,7 @@ void Entity::Initialize()
     {
         children[i]->Initialize();
     }
+    Start();
 }
 
 void Entity::Start()
@@ -73,11 +81,20 @@ bool Entity::AddChild(Entity* child)
 {
     if(child == nullptr)
         return false;
+    for(int i = 0; i < children.size(); i++)
+    {
+        if(children[i] == nullptr)
+        {
+            children.erase(children.begin() + i);
+        }
+    }
     //check if child already is already in children
     for(int i = 0; i < children.size(); i++)
     {
         if(child->GetName() == children[i]->GetName())
+        {
             return false;
+        }
     }
     children.push_back(child);
     child->SetParent(this);
@@ -117,7 +134,7 @@ Entity* Entity::GetChild(std::string name)
                 return children[i];
         }
 
-        LOG_ERROR("Entity: " + this->GetName() + " could not be found");
+        LOG_ERROR("Entity: " + name + " could not be found");
         return nullptr;
     }
 

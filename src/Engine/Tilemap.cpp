@@ -1,4 +1,7 @@
 #include "Tilemap.h"
+#include "SpriteRenderer.h"
+#include "BoxCollision.h"
+#include "StaticBody.h"
 
 Tilemap::Tilemap(int tileSize)
 {
@@ -18,28 +21,36 @@ void Tilemap::Update()
 
 void Tilemap::SetTile(glm::ivec2 globalPosition, std::string texName, int tileIndex)
 {
-    Tile tile = File::loadedTiles[texName][tileIndex];
+    Tile* tile = File::loadedTiles[texName][tileIndex];
     SetTile(globalPosition, tile);
 }
 
 void Tilemap::SetTile(glm::ivec2 globalPosition, std::string texName, glm::ivec2 tileIndexPosition)
 {
-    Tile tile = File::GetTileAtPos(texName, tileIndexPosition);
+    Tile* tile = File::GetTileAtPos(texName, tileIndexPosition);
     SetTile(globalPosition, tile);
 }
 
-void Tilemap::SetTile(glm::ivec2 globalPosition, Tile tile)
+void Tilemap::SetTile(glm::ivec2 globalPosition, Tile* tile)
 {
+
+    glm::ivec2 originalPosition = globalPosition;
     globalPosition = AlignPosToGrid(globalPosition);
     std::string sPos = std::to_string(globalPosition.x) + "," + std::to_string(globalPosition.y);
-    auto it = tilemap.find(sPos);
-    if(it != tilemap.end())
+    
+    EraseTile(originalPosition);
+    EraseLogicTile(globalPosition);
+
+    if(tile->hasCollision)
     {
-        //sPos already exists, aka tile is already placed in this position
-        tilemap.erase(it);
+        CreateLogicTile(originalPosition, tile);
+        return;
     }
-    tile.position = globalPosition;
-    tilemap.emplace(sPos, tile);
+    
+    Tile newTile(tile->texturePosition, tile->tex2D, tile->tileSize, tile->zIndex, tile->isReplaceable);
+    newTile.position = globalPosition;
+    tilemap.emplace(sPos, newTile);
+    
 }
 
 Tile* Tilemap::GetTileAt(glm::ivec2 globalPosition)
@@ -56,12 +67,40 @@ Tile* Tilemap::GetTileAt(glm::ivec2 globalPosition)
     }
 }
 
-//!!FIXME: Alignment gets messed up when originalPos is negative
+Entity* Tilemap::GetTileEntityAt(glm::ivec2 globalPosition)
+{
+    try
+    {
+        globalPosition = AlignPosToGrid(globalPosition);
+        std::string sPos = std::to_string(globalPosition.x) + "," + std::to_string(globalPosition.y);
+        return logicTilemap.at(sPos);
+    }
+    catch(std::out_of_range e)
+    {
+        return nullptr;
+    }
+}
+
+void Tilemap::EraseTile(glm::ivec2 globalPosition)
+{
+    globalPosition = AlignPosToGrid(globalPosition);
+    std::string sPos = std::to_string(globalPosition.x) + "," + std::to_string(globalPosition.y);
+    auto it = tilemap.find(sPos);
+    if(it != tilemap.end())
+    {
+        //sPos already exists, aka tile is already placed in this position
+        tilemap.erase(it);
+    }
+}
+
 glm::ivec2 Tilemap::AlignPosToGrid(glm::ivec2 position)
 {
     position -= (glm::ivec2)entity->transform->globalPosition;
     glm::ivec2 originalPos = position + (glm::ivec2)entity->transform->globalPosition;
     glm::ivec2 newPos = position;
+    if(((newPos.x % tileSize) == 0) && ((newPos.y % tileSize) == 0))
+        return newPos;
+
     if(position.x > 0)
     {
         if(tileSize / abs(position.x) < tileSize / 2)
@@ -118,6 +157,62 @@ glm::ivec2 Tilemap::AlignPosToGrid(glm::ivec2 position)
     return newPos;
 }
 
+Entity* Tilemap::CreateLogicTile(glm::ivec2 globalPosition, Tile* tile)
+{
+    EraseTile(globalPosition);
+
+    globalPosition = AlignPosToGrid(globalPosition);
+    std::string sPos = std::to_string(globalPosition.x) + "," + std::to_string(globalPosition.y);
+    //make tile with logic
+    Entity* tileEntity = new Entity(sPos);
+    tileEntity->transform->localPosition = globalPosition;
+    tileEntity->transform->localScale = glm::vec2(0.5f, 1.0f);
+    tileEntity->transform->localPosition += (tileSize * 0.5f * entity->transform->globalScale);
+
+    SpriteRenderer* tileSprite = new SpriteRenderer(tile->tex2D);
+
+    SDL_FRect tileRect;
+    tileRect.x = tile->texturePosition.x;
+    tileRect.y = tile->texturePosition.y;
+    tileRect.w = tileSize;
+    tileRect.h = tileSize;
+    tileSprite->clipRect = tileRect;
+
+    tileEntity->AddComponent(tileSprite);
+
+    if(tile->hasCollision)
+    {
+        BoxCollision* collision = new BoxCollision(tile->tex2D->size * entity->transform->globalScale);
+        collision->boxExtents.x *= 0.5f;
+        collision->SetCollisionLayer(collisionLayer);
+        collision->SetCollisionMask(collisionMask);
+        StaticBody* body = new StaticBody();
+
+        tileEntity->AddComponent(collision);
+        tileEntity->AddComponent(body);
+    }
+
+    this->entity->AddChild(tileEntity);
+    logicTilemap.emplace(sPos, tileEntity);
+    return tileEntity;
+}
+
+void Tilemap::EraseLogicTile(glm::ivec2 globalPosition)
+{
+    std::string sPos = std::to_string(globalPosition.x) + "," + std::to_string(globalPosition.y);
+    auto it = logicTilemap.find(sPos);
+    if(it != logicTilemap.end())
+    {
+        //sPos already exists, aka tile is already placed in this position
+        logicTilemap.erase(it);
+        Entity* child = this->entity->GetChild(sPos);
+        if(child != nullptr)
+        {
+            delete child;
+        }
+    }
+}
+
 void Tilemap::DrawTilemap()
 {
     if(entity == nullptr)
@@ -143,8 +238,8 @@ void Tilemap::DrawTile(glm::vec2 position, Tile tile)
     SDL_FRect srcRect;
     SDL_FPoint center;
 
-    dstRect.x = position.x + (int)entity->transform->globalPosition.x;
-    dstRect.y = position.y + (int)entity->transform->globalPosition.y;
+    dstRect.x = position.x + entity->transform->globalPosition.x;
+    dstRect.y = position.y + entity->transform->globalPosition.y;
     dstRect.w = tileSize * entity->transform->globalScale.x;
     dstRect.h = tileSize * entity->transform->globalScale.y;
 
