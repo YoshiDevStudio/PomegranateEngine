@@ -45,7 +45,7 @@ bool Window::HandleEvent(SDL_Event* event)
 
 void Window::FrameUpdate()
 {
-    Time::timeElapsed = SDL_GetTicks() / 1000.0f;
+    Time::timeElapsed = SDL_GetTicks() * 0.001f;
     Time::deltaTime = (Time::timeElapsed - prevTime);
     prevTime = Time::timeElapsed;
 }
@@ -68,12 +68,18 @@ SDL_WindowFlags Window::GetWindowFlags()
 
 void Window::SetWindowSize(glm::ivec2 rect)
 {
+    if(rect.x < 0 || rect.y < 0 || !isResizable)
+        return;
     this->windowSize = rect;
+    SDL_SetWindowSize(sdlWindow, rect.x, rect.y);
 }
 
 void Window::SetWindowSize(int width, int height)
 {
+    if(width < 0 || height < 0 || !isResizable)
+        return;
     this->windowSize = glm::ivec2(width, height);
+    SDL_SetWindowSize(sdlWindow, width, height);
 }
 
 glm::ivec2 Window::GetWindowSize()
@@ -83,6 +89,7 @@ glm::ivec2 Window::GetWindowSize()
 
 void Window::SetWindowResizable(bool isResizable)
 {
+    this->isResizable = isResizable;
     SDL_SetWindowResizable(sdlWindow, isResizable);
 }
 

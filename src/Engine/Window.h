@@ -14,7 +14,6 @@ public:
     Window(std::string title, int width, int height, SDL_WindowFlags windowFlags = 0);
     ~Window();
 
-    //!!TODO: Implement Mouse Events
     bool HandleEvent(SDL_Event* event);
     void FrameUpdate();
 
@@ -39,6 +38,7 @@ private:
 
     SDL_WindowFlags windowFlags = 0;
     glm::ivec2 windowSize = glm::ivec2(0, 0);
+    bool isResizable = true;
     //Used for calculating deltaTime
     float prevTime = 0;
 };

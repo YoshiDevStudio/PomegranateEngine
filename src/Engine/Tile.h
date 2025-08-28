@@ -10,12 +10,11 @@ class DLL_API Tile
 {
 public:
     //texturePosition is relative to texture coordinates
-    Tile(glm::ivec2 texturePosition, Texture2D* tex2D = nullptr, int tileSize = 0, bool hasCollision = false, int zIndex = 0, bool isReplaceable = true)
+    Tile(glm::ivec2 texturePosition, Texture2D* tex2D = nullptr, int tileSize = 0, int zIndex = 0, bool isReplaceable = true)
     {
         this->texturePosition = texturePosition;
         this->tex2D = tex2D;
         this->tileSize = tileSize;
-        this->hasCollision = hasCollision;
         this->zIndex = zIndex;
         this->isReplaceable = isReplaceable;
     }
@@ -25,7 +24,6 @@ public:
         this->texturePosition = otherTile.texturePosition;
         this->tex2D = otherTile.tex2D;
         this->tileSize = otherTile.tileSize;
-        this->hasCollision = otherTile.hasCollision;
         this->zIndex = otherTile.zIndex;
         this->isReplaceable = otherTile.isReplaceable;
     }
@@ -34,7 +32,6 @@ public:
     glm::ivec2 texturePosition;
     Texture2D* tex2D;
     int tileSize;
-    bool hasCollision;
     int zIndex;
     bool isReplaceable;
 };

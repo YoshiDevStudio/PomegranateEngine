@@ -29,8 +29,13 @@ void Animator::PlayAnimation(Animation* animation)
         return;
     }
     currentAnimation = animation;
-    startOffset = SDL_GetTicks() / 1000.0f * animationSpeed;
+    timer = 0;
     isPlaying = true;
+}
+
+void Animator::Seek(float seconds)
+{
+    timer = seconds;
 }
 
 void Animator::SetPause(bool shouldPause)
@@ -64,8 +69,9 @@ void Animator::UpdateFrame()
     if(currentAnimation == nullptr || !isPlaying || sprite == nullptr)
         return;
     
-    Uint64 timer = ((SDL_GetTicks() / 1000.0f) * animationSpeed) - startOffset;
-    int index = timer % currentAnimation->frames.size();
+    timer += Time::deltaTime * animationSpeed;
+    std::cout << "Timer: " << timer << std::endl;
+    int index = (int)timer % currentAnimation->frames.size();
     AnimationFrame frame = currentAnimation->frames[index];
 
     sprite->clipRect = frame.clipRect;

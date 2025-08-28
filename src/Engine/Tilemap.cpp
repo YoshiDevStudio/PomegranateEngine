@@ -40,12 +40,6 @@ void Tilemap::SetTile(glm::ivec2 globalPosition, Tile* tile)
     
     EraseTile(originalPosition);
     EraseLogicTile(globalPosition);
-
-    if(tile->hasCollision)
-    {
-        CreateLogicTile(originalPosition, tile);
-        return;
-    }
     
     Tile newTile(tile->texturePosition, tile->tex2D, tile->tileSize, tile->zIndex, tile->isReplaceable);
     newTile.position = globalPosition;
@@ -179,18 +173,6 @@ Entity* Tilemap::CreateLogicTile(glm::ivec2 globalPosition, Tile* tile)
     tileSprite->clipRect = tileRect;
 
     tileEntity->AddComponent(tileSprite);
-
-    if(tile->hasCollision)
-    {
-        BoxCollision* collision = new BoxCollision(tile->tex2D->size * entity->transform->globalScale);
-        collision->boxExtents.x *= 0.5f;
-        collision->SetCollisionLayer(collisionLayer);
-        collision->SetCollisionMask(collisionMask);
-        StaticBody* body = new StaticBody();
-
-        tileEntity->AddComponent(collision);
-        tileEntity->AddComponent(body);
-    }
 
     this->entity->AddChild(tileEntity);
     logicTilemap.emplace(sPos, tileEntity);

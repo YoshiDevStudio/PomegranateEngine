@@ -67,3 +67,13 @@ bool Input::IsMouseButtonReleased(SDL_MouseButtonFlags button)
 {
     return !(SDL_GetMouseState(NULL, NULL) & SDL_BUTTON_MASK(button));
 }
+
+glm::vec2 Input::MakeVector(int upKey, int downKey, int rightKey, int leftKey)
+{
+    int upPressed = (int)IsKeyPressed(upKey) * -1;
+    int downPressed = (int)IsKeyPressed(downKey);
+    int rightPressed = (int)IsKeyPressed(rightKey);
+    int leftPressed = (int)IsKeyPressed(leftKey) * -1;
+    
+    return glm::vec2(rightPressed + leftPressed, upPressed + downPressed);
+}

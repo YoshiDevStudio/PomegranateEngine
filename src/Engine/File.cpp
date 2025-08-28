@@ -10,13 +10,28 @@ std::unordered_map<std::string, int> File::imgFormats =
 };
 
 //Loads all Images in path and stores them in File::loadedTextures
-std::vector<Texture2D*> File::LoadIMGsInFolder(std::string folderPath, SDL_ScaleMode scaleMode)
+std::vector<Texture2D*> File::LoadIMGsInFolder(std::string folderPath, bool useAbsolutePath, SDL_ScaleMode scaleMode)
 {
     std::vector<Texture2D*> textures;
     try
     {
-        for(const auto& entry : std::filesystem::directory_iterator(std::filesystem::current_path().string() + "\\" + folderPath))
+        if(useAbsolutePath)
         {
+            folderPath = std::filesystem::current_path().string() + "\\" + folderPath;
+        }
+        for(const auto& entry : std::filesystem::directory_iterator(folderPath))
+        {
+            if(std::filesystem::is_directory(entry.path().string()))
+            {
+                std::vector<Texture2D*> dirTextures = LoadIMGsInFolder(entry.path().string(), false);
+                for(int i = 0; i < dirTextures.size(); i++)
+                {
+                    Texture2D* dirTex = dirTextures[i];
+                    if(dirTex != nullptr)
+                        textures.push_back(dirTex);
+                }
+                continue;
+            }
             std::string outFileName = entry.path().string();
             Texture2D* tex2D = LoadIMG(outFileName, scaleMode);
             if(tex2D != nullptr)
@@ -47,7 +62,7 @@ Texture2D* File::LoadIMG(std::string filePath, SDL_ScaleMode scaleMode)
             tex2D = LoadJPG(filePath, scaleMode);
             break;
         default:
-            LOG_ERROR("File type: " + fileExtension + " not supported");
+            LOG_ERROR("File type: " + fileExtension + " not supported on File: " + filePath);
             return nullptr;
     }
     return tex2D;
@@ -115,6 +130,14 @@ void File::Uninitialize()
     for(const auto& pair : File::loadedTextures)
     {
         delete pair.second;
+    }
+
+    for(const auto& pair : File::loadedTiles)
+    {
+        for(int i = 0; i < pair.second.size(); i++)
+        {
+            delete pair.second[i];
+        }
     }
 }
 

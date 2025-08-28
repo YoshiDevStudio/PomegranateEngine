@@ -17,7 +17,7 @@
 class DLL_API File
 {
 public:
-    static std::vector<Texture2D*> LoadIMGsInFolder(std::string folderPath, SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
+    static std::vector<Texture2D*> LoadIMGsInFolder(std::string folderPath, bool useAbsolutePath = true, SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
     static Texture2D* LoadIMG(std::string filePath, SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
 
     static std::vector<Tile*> LoadTiles(std::string filePath, int tileSize, SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);

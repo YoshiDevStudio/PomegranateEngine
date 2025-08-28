@@ -5,6 +5,7 @@
 #include "Event.h"
 #include "Animation.h"
 
+//TODO: Add SeekFrame function
 class DLL_API Animator : public Component
 {
     
@@ -16,6 +17,7 @@ public:
     virtual void Update() override;
 
     void PlayAnimation(Animation* animation);
+    void Seek(float seconds);
     void SetPause(bool shouldPause);
     void StopAnimation();
 
@@ -30,5 +32,5 @@ private:
     Animation* currentAnimation = nullptr;
     AnimationFrame defaultState;
 
-    Uint64 startOffset;
+    float timer;
 };

@@ -25,6 +25,7 @@ public:
     static int steps;
     static glm::vec2 gravity;
     static bool useQuadTrees;
+    static int maxTreeDepth;
 private:
     //Quadtree Phases
     static void BroadPhase();

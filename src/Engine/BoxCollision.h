@@ -30,7 +30,7 @@ public:
 
     virtual glm::vec2 GetBroadPhaseAABBSize() override
     {
-        return this->boxExtents / 2.0f;
+        return this->boxExtents * 0.5f;
     }
 
     glm::vec2 boxExtents;

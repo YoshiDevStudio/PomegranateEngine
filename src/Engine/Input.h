@@ -6,7 +6,6 @@
 #include "Core.h"
 #include "Event.h"
 
-//!!TODO: Implement Mouse Events, Keymods, Gamepads
 class DLL_API Input
 {
 public:
@@ -21,6 +20,8 @@ public:
     static glm::vec2 GetWorldMousePosition();
     static bool IsMouseButtonPressed(SDL_MouseButtonFlags button);
     static bool IsMouseButtonReleased(SDL_MouseButtonFlags button);
+
+    static glm::vec2 MakeVector(int upKey, int downKey, int rightKey, int leftKey);
 
     static Event<void, SDL_Event*>* OnMouseWheelEvent;
 };

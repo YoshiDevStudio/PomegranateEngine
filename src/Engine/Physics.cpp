@@ -5,6 +5,7 @@
 int Physics::steps = 4;
 glm::vec2 Physics::gravity = glm::vec2(0, 981.0f);
 bool Physics::useQuadTrees = true;
+int Physics::maxTreeDepth = 9;
 std::set<CollisionInfo> Physics::broadPhaseCollisions;
 
 void Physics::Update()
@@ -48,7 +49,7 @@ bool Physics::Raycast(Ray& ray, RaycastHit& hitInfo)
 void Physics::BroadPhase()
 {
     broadPhaseCollisions.clear();
-    QuadTree<Collision*> tree(glm::vec2(1024), 7, 6);
+    QuadTree<Collision*> tree(glm::vec2(1024), maxTreeDepth, 6);
 
     std::vector<Collision*> collisionObjects = Application::GetAllComponentsOfType<Collision>();
     for(int i = 0; i < collisionObjects.size(); i++)
@@ -186,7 +187,7 @@ void Physics::IntegrateVelocity()
         transform->localPosition += linearVelocity * Time::deltaTime;
 
         //Linear Damping
-        float frameDamping = powf(body->GetLinearDamping(), Time::deltaTime);
+        float frameDamping = powf(0.05f, Time::deltaTime);
         linearVelocity *= frameDamping;
         body->SetLinearVelocity(linearVelocity);
 
