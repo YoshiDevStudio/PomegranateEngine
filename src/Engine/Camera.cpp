@@ -25,6 +25,11 @@ void Camera::SetCurrent(bool current)
     this->isCurrent = false;
 }
 
+void Camera::SetSize(int width, int height)
+{
+    this->size = glm::vec2(width, height);
+}
+
 void Camera::SetSize(glm::vec2 size)
 {
     this->size = size;

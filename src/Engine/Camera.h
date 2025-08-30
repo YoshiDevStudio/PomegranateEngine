@@ -10,10 +10,11 @@ class DLL_API Camera : public Component
 public:
     static Camera* currentCamera;
 
-    Camera(bool isCurrent = false);
+    Camera(bool isCurrent = true);
     ~Camera() = default;
 
     void SetCurrent(bool current);
+    void SetSize(int width, int height);
     void SetSize(glm::vec2 size);
     glm::vec2 GetSize();
     glm::vec2 GetCenterPos();
